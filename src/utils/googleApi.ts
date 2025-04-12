@@ -1,6 +1,4 @@
-
-// This is a simplified mock of Google Sheets API for the prototype
-// In a real application, you would use the actual Google API client
+import axios from 'axios';
 
 // Mock data for spreadsheets
 const mockSpreadsheets = [
@@ -87,10 +85,31 @@ export const fetchSheets = async (spreadsheetId: string): Promise<any[]> => {
   });
 };
 
+// Add this function to fetch data from a public sheet
+export const fetchPublicSheetData = async (sheetId: string, range?: string) => {
+  try {
+    // Construct the URL for the public sheet
+    const apiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range || 'Sheet1'}`;
+    
+    const response = await axios.get(apiUrl, {
+      params: {
+        key: 'YOUR_PUBLIC_API_KEY' // Replace with your actual public API key
+      }
+    });
+    
+    return response.data.values;
+  } catch (error) {
+    console.error('Error fetching public sheet:', error);
+    throw error;
+  }
+};
+
 /**
  * Mock function for fetching data from a specific sheet
  */
 export const fetchSheetData = async (spreadsheetId: string, sheetId: string): Promise<any[]> => {
+  // For mock implementation, keep existing logic
+  // In a real app, you'd add logic to handle public sheets
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve(mockSheetData[sheetId] || []);
