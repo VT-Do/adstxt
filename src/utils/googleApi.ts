@@ -1,3 +1,4 @@
+
 import axios from 'axios';
 
 // Mock data for spreadsheets
@@ -85,19 +86,31 @@ export const fetchSheets = async (spreadsheetId: string): Promise<any[]> => {
   });
 };
 
-// Add this function to fetch data from a public sheet
-export const fetchPublicSheetData = async (sheetId: string, range?: string) => {
+/**
+ * Fetch data from a public Google Sheet
+ * This doesn't require an API key if the sheet is publicly shared for viewing
+ */
+export const fetchPublicSheetData = async (sheetId: string, sheetName: string = "Sheet1"): Promise<any[]> => {
   try {
-    // Construct the URL for the public sheet
-    const apiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range || 'Sheet1'}`;
+    // For public sheets, we can use this URL pattern
+    const publicUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
     
-    const response = await axios.get(apiUrl, {
-      params: {
-        key: 'YOUR_PUBLIC_API_KEY' // Replace with your actual public API key
-      }
+    const response = await axios.get(publicUrl, {
+      // Set responseType to text for CSV parsing
+      responseType: 'text'
     });
     
-    return response.data.values;
+    // Parse CSV data
+    const rows = response.data.split('\n').map(row => 
+      row.split(',').map(cell => 
+        // Remove quotes from quoted cells and handle parsing
+        cell.startsWith('"') && cell.endsWith('"') 
+          ? cell.substring(1, cell.length - 1) 
+          : cell
+      )
+    );
+    
+    return rows;
   } catch (error) {
     console.error('Error fetching public sheet:', error);
     throw error;
@@ -115,4 +128,31 @@ export const fetchSheetData = async (spreadsheetId: string, sheetId: string): Pr
       resolve(mockSheetData[sheetId] || []);
     }, 700);
   });
+};
+
+/**
+ * Parse sheet ID from a Google Sheets URL
+ */
+export const parseSheetId = (url: string): string | null => {
+  // Match pattern like: https://docs.google.com/spreadsheets/d/SHEET_ID/edit
+  const match = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+  return match ? match[1] : null;
+};
+
+/**
+ * Extract sheet name from URL (gid parameter)
+ */
+export const parseSheetName = (url: string): string | null => {
+  // Default to "Sheet1" if no gid found
+  const gidMatch = url.match(/gid=(\d+)/);
+  if (!gidMatch) return "Sheet1";
+  
+  // Convert gid to sheet name (in a real app, you would fetch sheet names)
+  // For this prototype, we'll use a simplified mapping
+  const gidToName: Record<string, string> = {
+    "0": "Sheet1",
+    "1": "Sheet2"
+  };
+  
+  return gidToName[gidMatch[1]] || "Sheet1";
 };
