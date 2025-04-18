@@ -1,12 +1,12 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SheetViewer from "@/components/SheetViewer";
 import ChartView from "@/components/ChartView";
-import { FileText, ChartBar, Table2, PieChart } from "lucide-react";
+import { FileText, PieChart, Table2 } from "lucide-react";
 
 const Index = () => {
-  const [data, setData] = React.useState([]);
+  const [data, setData] = useState([]);
 
   const handleDataLoaded = (loadedData) => {
     setData(loadedData);

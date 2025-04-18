@@ -30,12 +30,22 @@ const ChartView: React.FC<ChartViewProps> = ({ data }) => {
     // If data is in array format (from CSV), transform it to objects
     if (Array.isArray(data[0])) {
       const headers = data[0];
-      const revIndex = headers.findIndex((h: string) => h.toUpperCase() === 'REV');
-      const sspIndex = headers.findIndex((h: string) => h.toUpperCase() === 'SSP');
+      const revIndex = headers.findIndex((h: string) => 
+        typeof h === 'string' && h.toUpperCase().includes('REV')
+      );
+      const sspIndex = headers.findIndex((h: string) => 
+        typeof h === 'string' && h.toUpperCase().includes('SSP')
+      );
       
-      if (revIndex === -1 || sspIndex === -1) return [];
+      if (revIndex === -1 || sspIndex === -1) {
+        console.log("Could not find REV or SSP columns. Headers:", headers);
+        return [];
+      }
       
-      return data.slice(1).filter(row => row[sspIndex] && row[revIndex])
+      console.log("Found REV at index", revIndex, "and SSP at index", sspIndex);
+      
+      return data.slice(1)
+        .filter(row => row[sspIndex] && row[revIndex])
         .map((row: any[]) => ({
           SSP: row[sspIndex],
           REV: Number(row[revIndex]) || 0
@@ -55,6 +65,8 @@ const ChartView: React.FC<ChartViewProps> = ({ data }) => {
     return chartData.reduce((sum, item) => sum + item.REV, 0);
   }, [chartData]);
 
+  console.log("Chart data:", chartData);
+
   if (!chartData.length) {
     return (
       <Card>
@@ -62,7 +74,7 @@ const ChartView: React.FC<ChartViewProps> = ({ data }) => {
           <CardTitle>Revenue by SSP</CardTitle>
         </CardHeader>
         <CardContent className="h-[400px] flex items-center justify-center">
-          <p className="text-muted-foreground">No data available for visualization</p>
+          <p className="text-muted-foreground">No data available for visualization. Please load a sheet with REV and SSP columns.</p>
         </CardContent>
       </Card>
     );
