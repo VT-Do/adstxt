@@ -100,17 +100,68 @@ export const fetchPublicSheetData = async (sheetId: string, sheetName: string = 
       responseType: 'text'
     });
     
-    // Parse CSV data
-    const rows = response.data.split('\n').map(row => 
-      row.split(',').map(cell => 
-        // Remove quotes from quoted cells and handle parsing
-        cell.startsWith('"') && cell.endsWith('"') 
-          ? cell.substring(1, cell.length - 1) 
-          : cell
-      )
+    // Parse CSV data with better handling for quoted fields
+    const parseCSV = (csvText: string) => {
+      const rows: string[][] = [];
+      let currentRow: string[] = [];
+      let currentField = '';
+      let inQuotes = false;
+      
+      for (let i = 0; i < csvText.length; i++) {
+        const char = csvText[i];
+        const nextChar = csvText[i + 1];
+        
+        if (char === '"' && inQuotes && nextChar === '"') {
+          // Handle double quotes inside quoted fields
+          currentField += '"';
+          i++; // Skip the next quote
+        } else if (char === '"') {
+          // Toggle quote state
+          inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+          // End of field
+          currentRow.push(currentField);
+          currentField = '';
+        } else if ((char === '\n' || char === '\r') && !inQuotes) {
+          // End of row
+          if (char === '\r' && nextChar === '\n') {
+            i++; // Skip the \n in \r\n sequence
+          }
+          if (currentField || currentRow.length > 0) {
+            currentRow.push(currentField);
+            rows.push(currentRow);
+            currentRow = [];
+            currentField = '';
+          }
+        } else {
+          // Regular character
+          currentField += char;
+        }
+      }
+      
+      // Add the last field and row if there's any
+      if (currentField || currentRow.length > 0) {
+        currentRow.push(currentField);
+        rows.push(currentRow);
+      }
+      
+      return rows;
+    };
+    
+    const rows = parseCSV(response.data);
+    
+    // Clean and convert numeric values
+    const cleanedRows = rows.map(row => 
+      row.map(cell => {
+        // Try to convert numeric strings to numbers
+        if (/^-?\d+(\.\d+)?$/.test(cell)) {
+          return parseFloat(cell);
+        }
+        return cell;
+      })
     );
     
-    return rows;
+    return cleanedRows;
   } catch (error) {
     console.error('Error fetching public sheet:', error);
     throw error;

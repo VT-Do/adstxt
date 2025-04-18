@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ArrowUpDown, Search, Download } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { transformSheetData } from "@/utils/sheetTransform";
 
 interface DataTableProps {
   data: any[];
@@ -33,9 +34,22 @@ const DataTable: React.FC<DataTableProps> = ({ data }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const pageSize = 10;
 
+  // Transform raw data to use headers properly
+  const processedData = useMemo(() => {
+    if (!data || data.length === 0) return [];
+    
+    // If data comes from a CSV, the first row should be headers
+    if (Array.isArray(data[0])) {
+      return transformSheetData(data);
+    }
+    
+    // If data is already in object format, return as is
+    return data;
+  }, [data]);
+
   // For the prototype, if no data is provided, use sample data
   const sampleData = useMemo(() => {
-    if (data && data.length > 0) return data;
+    if (processedData && processedData.length > 0) return processedData;
     
     return [
       { id: 1, product: "Laptop", category: "Electronics", price: 1299, stock: 45 },
@@ -51,7 +65,7 @@ const DataTable: React.FC<DataTableProps> = ({ data }) => {
       { id: 11, product: "Bookshelf", category: "Furniture", price: 129, stock: 13 },
       { id: 12, product: "Toaster", category: "Appliances", price: 59, stock: 41 },
     ];
-  }, [data]);
+  }, [processedData]);
 
   const columns = useMemo(() => {
     if (sampleData.length === 0) return [];
@@ -148,7 +162,7 @@ const DataTable: React.FC<DataTableProps> = ({ data }) => {
         </div>
       </CardHeader>
       <CardContent className="p-0">
-        <div className="border rounded-md">
+        <div className="border rounded-md overflow-auto">
           <Table>
             <TableHeader>
               <TableRow>
