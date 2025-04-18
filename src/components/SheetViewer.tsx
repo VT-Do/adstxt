@@ -1,10 +1,8 @@
 
 import React, { useState, useEffect } from "react";
-import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import DataTable from "@/components/DataTable";
 import FilterControls from "@/components/FilterControls";
-import ChartView from "@/components/ChartView";
 import { fetchPublicSheetData, parseSheetId, parseSheetName } from "@/utils/googleApi";
 import { RefreshCw, Link } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,10 +11,9 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { Progress } from "@/components/ui/progress";
 
-const SheetViewer = () => {
+const SheetViewer = ({ onDataLoaded }) => {
   const [sheetData, setSheetData] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [activeView, setActiveView] = useState("table");
   const [publicSheetUrl, setPublicSheetUrl] = useState("https://docs.google.com/spreadsheets/d/18BriA-gtmtxV8aL47vOpAWL-kFp2aQkxv_4-kbRJF-w/edit?gid=0#gid=0");
   const [activeSheet, setActiveSheet] = useState(null);
   const { toast } = useToast();
@@ -25,6 +22,13 @@ const SheetViewer = () => {
   useEffect(() => {
     loadPublicSheetData();
   }, []);
+
+  // Pass data to parent component when it changes
+  useEffect(() => {
+    if (sheetData.length > 0) {
+      onDataLoaded(sheetData);
+    }
+  }, [sheetData, onDataLoaded]);
 
   const loadPublicSheetData = async () => {
     try {
@@ -117,18 +121,9 @@ const SheetViewer = () => {
         <div className="space-y-6 fade-in">
           <FilterControls sheetData={sheetData} />
           
-          <Tabs value={activeView} onValueChange={setActiveView} className="w-full">
-            <TabsContent value="table" className="pt-2">
-              <Card className="bg-card/50 border border-primary/10">
-                <DataTable data={sheetData} />
-              </Card>
-            </TabsContent>
-            <TabsContent value="chart" className="pt-2">
-              <Card className="bg-card/50 border border-primary/10 p-4">
-                <ChartView data={sheetData} />
-              </Card>
-            </TabsContent>
-          </Tabs>
+          <Card className="bg-card/50 border border-primary/10">
+            <DataTable data={sheetData} />
+          </Card>
         </div>
       )}
       

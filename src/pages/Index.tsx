@@ -2,9 +2,16 @@
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SheetViewer from "@/components/SheetViewer";
+import ChartView from "@/components/ChartView";
 import { FileText, ChartBar, Table2, PieChart } from "lucide-react";
 
 const Index = () => {
+  const [data, setData] = React.useState([]);
+
+  const handleDataLoaded = (loadedData) => {
+    setData(loadedData);
+  };
+
   return (
     <div className="min-h-screen gradient-bg py-8">
       <div className="container mx-auto px-4">
@@ -37,7 +44,12 @@ const Index = () => {
               </div>
 
               <div className="p-6">
-                <SheetViewer />
+                <TabsContent value="table">
+                  <SheetViewer onDataLoaded={handleDataLoaded} />
+                </TabsContent>
+                <TabsContent value="chart">
+                  <ChartView data={data} />
+                </TabsContent>
               </div>
             </Tabs>
           </div>
