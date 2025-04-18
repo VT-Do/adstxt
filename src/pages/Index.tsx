@@ -13,10 +13,10 @@ const Index = () => {
             <Table2 className="h-10 w-10 text-primary" />
           </div>
           <h1 className="text-4xl font-bold text-primary mb-2 tracking-tight">
-            SheetCanvas
+            OMP Test
           </h1>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-            View, filter, and visualize your Google Sheets data with ease
+            View, filter, and visualize GS files
           </p>
         </header>
 
