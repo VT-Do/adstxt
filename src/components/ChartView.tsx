@@ -30,11 +30,23 @@ const ChartView: React.FC<ChartViewProps> = ({ data }) => {
     // If data is in array format (from CSV), transform it to objects
     if (Array.isArray(data[0])) {
       const headers = data[0];
+      
+      // Log headers to troubleshoot
+      console.log("Headers:", headers);
+      
+      // Find column indices - try multiple variations of the column names
       const revIndex = headers.findIndex((h: string) => 
-        typeof h === 'string' && h.toUpperCase().includes('REV')
+        typeof h === 'string' && 
+        (h.toUpperCase().includes('REV') || 
+         h.toUpperCase().includes('REVENUE') ||
+         h.toUpperCase() === 'AMOUNT')
       );
+      
       const sspIndex = headers.findIndex((h: string) => 
-        typeof h === 'string' && h.toUpperCase().includes('SSP')
+        typeof h === 'string' && 
+        (h.toUpperCase().includes('SSP') || 
+         h.toUpperCase().includes('SUPPLIER') ||
+         h.toUpperCase().includes('PARTNER'))
       );
       
       if (revIndex === -1 || sspIndex === -1) {
@@ -44,12 +56,32 @@ const ChartView: React.FC<ChartViewProps> = ({ data }) => {
       
       console.log("Found REV at index", revIndex, "and SSP at index", sspIndex);
       
-      return data.slice(1)
-        .filter(row => row[sspIndex] && row[revIndex])
-        .map((row: any[]) => ({
-          SSP: row[sspIndex],
-          REV: Number(row[revIndex]) || 0
-        }));
+      // Create aggregated data by SSP
+      const aggregatedData: Record<string, number> = {};
+      
+      // Process all rows except headers
+      data.slice(1).forEach((row: any[]) => {
+        if (!row[sspIndex] || row.length <= revIndex) return;
+        
+        const ssp = row[sspIndex];
+        // Convert to number and default to 0 if NaN
+        const revenue = parseFloat(row[revIndex]) || 0;
+        
+        // Aggregate revenue by SSP
+        if (!aggregatedData[ssp]) {
+          aggregatedData[ssp] = 0;
+        }
+        aggregatedData[ssp] += revenue;
+      });
+      
+      // Convert to array format for charts
+      const result = Object.entries(aggregatedData).map(([ssp, rev]) => ({
+        SSP: ssp,
+        REV: rev
+      }));
+      
+      console.log("Processed chart data:", result);
+      return result;
     }
     
     // If data is already in object format
@@ -66,25 +98,38 @@ const ChartView: React.FC<ChartViewProps> = ({ data }) => {
   }, [chartData]);
 
   console.log("Chart data:", chartData);
+  console.log("Total revenue:", totalRev);
 
-  if (!chartData.length) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Revenue by SSP</CardTitle>
-        </CardHeader>
-        <CardContent className="h-[400px] flex items-center justify-center">
-          <p className="text-muted-foreground">No data available for visualization. Please load a sheet with REV and SSP columns.</p>
-        </CardContent>
-      </Card>
-    );
-  }
+  // Create example data if no data available
+  const exampleData = useMemo(() => {
+    if (chartData.length > 0) return chartData;
+    
+    // Return example data for demonstration
+    return [
+      { SSP: "Google", REV: 15000 },
+      { SSP: "Amazon", REV: 12000 },
+      { SSP: "Freewheel", REV: 8000 },
+      { SSP: "Rubicon", REV: 6500 },
+      { SSP: "Pubmatic", REV: 5000 },
+      { SSP: "AppNexus", REV: 4500 },
+      { SSP: "Smart", REV: 3000 }
+    ];
+  }, [chartData]);
+
+  // Decide which data to use - real or example
+  const displayData = chartData.length > 0 ? chartData : exampleData;
+  const isExample = chartData.length === 0;
 
   return (
     <div className="space-y-6">
       <Card className="bg-card/50 border border-primary/10">
         <CardHeader className="border-b">
           <CardTitle className="text-xl text-primary">Revenue Analysis by SSP</CardTitle>
+          {isExample && (
+            <p className="text-sm text-muted-foreground">
+              Showing example data. Please load a sheet with REV and SSP columns to see your actual data.
+            </p>
+          )}
         </CardHeader>
         <CardContent className="p-6">
           <Tabs defaultValue="bar" className="w-full">
@@ -103,7 +148,7 @@ const ChartView: React.FC<ChartViewProps> = ({ data }) => {
               <div className="h-[400px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
-                    data={chartData}
+                    data={displayData}
                     margin={{
                       top: 20,
                       right: 30,
@@ -147,7 +192,7 @@ const ChartView: React.FC<ChartViewProps> = ({ data }) => {
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={chartData}
+                      data={displayData}
                       cx="50%"
                       cy="50%"
                       labelLine={true}
@@ -157,7 +202,7 @@ const ChartView: React.FC<ChartViewProps> = ({ data }) => {
                       dataKey="REV"
                       nameKey="SSP"
                     >
-                      {chartData.map((entry, index) => (
+                      {displayData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
@@ -179,7 +224,9 @@ const ChartView: React.FC<ChartViewProps> = ({ data }) => {
           <div className="mt-6 pt-6 border-t">
             <div className="flex justify-between items-center">
               <span className="text-muted-foreground">Total Revenue:</span>
-              <span className="text-xl font-bold text-primary">${totalRev.toLocaleString()}</span>
+              <span className="text-xl font-bold text-primary">
+                ${(isExample ? displayData.reduce((sum, item) => sum + item.REV, 0) : totalRev).toLocaleString()}
+              </span>
             </div>
           </div>
         </CardContent>
