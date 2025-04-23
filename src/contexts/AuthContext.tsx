@@ -80,7 +80,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .single();
 
       if (error) {
-        throw error;
+        console.error("Error fetching profile:", error);
+        return;
       }
 
       setProfile(data as Profile);
@@ -92,9 +93,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signIn = async (email: string, password: string) => {
     try {
       setIsLoading(true);
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      
+      console.log("Attempting to sign in with email:", email);
+      const { data, error } = await supabase.auth.signInWithPassword({ 
+        email, 
+        password 
+      });
 
       if (error) {
+        console.error("Sign in error details:", error);
         toast({
           title: "Login failed",
           description: error.message,
@@ -103,10 +110,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw error;
       }
 
+      console.log("Login successful, received session:", data.session);
       toast({
         title: "Login successful",
         description: "Welcome back!",
       });
+      
       navigate("/");
     } catch (error) {
       console.error("Sign in error:", error);
@@ -119,7 +128,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signUp = async (email: string, password: string, fullName: string) => {
     try {
       setIsLoading(true);
-      const { error } = await supabase.auth.signUp({ 
+      const { data, error } = await supabase.auth.signUp({ 
         email, 
         password,
         options: {
@@ -136,6 +145,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw error;
       }
 
+      console.log("Signup response:", data);
       toast({
         title: "Signup successful",
         description: "Please check your email to verify your account.",
