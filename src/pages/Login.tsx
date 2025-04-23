@@ -5,17 +5,19 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { LogIn } from "lucide-react";
+import { LogIn, Bug } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Label } from "@/components/ui/label";
 
 const Login = () => {
   const [email, setEmail] = useState("van.tiep.do@showheroes-group.com");
-  const [password, setPassword] = useState("");
+  const [password, setPassword] = useState("Test12345@");
   const { signIn, isLoading } = useAuth();
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [debugMode, setDebugMode] = useState(false);
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -23,10 +25,68 @@ const Login = () => {
     setError(null);
     
     try {
+      if (debugMode) {
+        console.log("Attempting login with:", { email, password: "********" });
+        
+        // Try to get session first to check if we're already logged in
+        const { data: sessionData } = await supabase.auth.getSession();
+        console.log("Current session status:", sessionData.session ? "Active session" : "No active session");
+        
+        // Try sign-in directly with supabase client
+        const { data, error: signInError } = await supabase.auth.signInWithPassword({ 
+          email, 
+          password 
+        });
+        
+        if (signInError) {
+          console.error("Direct login error:", signInError);
+          setError(`Login error: ${signInError.message}`);
+          return;
+        }
+        
+        console.log("Direct login success:", data);
+        toast({
+          title: "Login successful via debug mode",
+          description: "Redirecting...",
+        });
+        
+        window.location.href = "/";
+        return;
+      }
+      
+      // Regular login through AuthContext
       await signIn(email, password);
     } catch (error: any) {
       console.error("Login error:", error);
       setError(error?.message || "Invalid login credentials");
+    }
+  };
+
+  const createTestUser = async () => {
+    try {
+      // Try to create a test user directly
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: "Test Admin",
+          },
+        }
+      });
+      
+      if (error) {
+        setError(`Failed to create test user: ${error.message}`);
+        return;
+      }
+      
+      console.log("Test user creation response:", data);
+      toast({
+        title: "Test user created",
+        description: "Please check your email for verification or try logging in now.",
+      });
+    } catch (err: any) {
+      setError(`Error creating test user: ${err.message}`);
     }
   };
 
@@ -63,6 +123,17 @@ const Login = () => {
           <CardDescription>
             Enter your email and password to access your account
           </CardDescription>
+          <div className="flex items-center justify-center">
+            <Button
+              variant="ghost" 
+              size="sm"
+              onClick={() => setDebugMode(!debugMode)}
+              className="text-xs text-gray-500"
+            >
+              <Bug className="h-3 w-3 mr-1" />
+              {debugMode ? "Disable Debug Mode" : "Enable Debug Mode"}
+            </Button>
+          </div>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
@@ -73,9 +144,7 @@ const Login = () => {
             )}
             
             <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium">
-                Email
-              </label>
+              <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -87,9 +156,7 @@ const Login = () => {
               />
             </div>
             <div className="space-y-2">
-              <label htmlFor="password" className="text-sm font-medium">
-                Password
-              </label>
+              <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
                 type="password"
@@ -99,6 +166,17 @@ const Login = () => {
                 autoComplete="current-password"
               />
             </div>
+            
+            {debugMode && (
+              <Button 
+                type="button"
+                variant="outline" 
+                onClick={createTestUser}
+                className="w-full"
+              >
+                Create Test User
+              </Button>
+            )}
             
             <div className="relative">
               <div className="flex items-center justify-center">
