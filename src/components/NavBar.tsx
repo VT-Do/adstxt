@@ -31,7 +31,7 @@ const NavBar = () => {
             <NavigationMenu>
               <NavigationMenuList className="gap-1">
                 <NavigationMenuItem>
-                  <Link to="/" legacyBehavior passHref>
+                  <Link to="/">
                     <NavigationMenuLink 
                       className={navigationMenuTriggerStyle({ className: isActive("/") ? "bg-accent" : "" })}
                     >
@@ -40,7 +40,7 @@ const NavBar = () => {
                   </Link>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <Link to="/library" legacyBehavior passHref>
+                  <Link to="/library">
                     <NavigationMenuLink 
                       className={navigationMenuTriggerStyle({ className: isActive("/library") ? "bg-accent" : "" })}
                     >
@@ -49,7 +49,7 @@ const NavBar = () => {
                   </Link>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <Link to="/contact" legacyBehavior passHref>
+                  <Link to="/contact">
                     <NavigationMenuLink 
                       className={navigationMenuTriggerStyle({ className: isActive("/contact") ? "bg-accent" : "" })}
                     >
@@ -59,7 +59,7 @@ const NavBar = () => {
                 </NavigationMenuItem>
                 {isAdmin && (
                   <NavigationMenuItem>
-                    <Link to="/admin" legacyBehavior passHref>
+                    <Link to="/admin">
                       <NavigationMenuLink 
                         className={navigationMenuTriggerStyle({ className: isActive("/admin") ? "bg-accent" : "" })}
                       >
