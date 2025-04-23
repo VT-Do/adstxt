@@ -7,24 +7,33 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { LogIn } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState("van.tiep.do@showheroes-group.com");
   const [password, setPassword] = useState("");
   const { signIn, isLoading } = useAuth();
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+    
     try {
       await signIn(email, password);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Login error:", error);
+      setError(error?.message || "Invalid login credentials");
     }
   };
 
   const handleGoogleLogin = async () => {
     setGoogleLoading(true);
+    setError(null);
+    
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
@@ -33,9 +42,14 @@ const Login = () => {
         }
       });
       if (error) throw error;
-    } catch (error) {
+    } catch (error: any) {
       console.error("Google login error:", error);
-      // You may use a toast to show error (optional)
+      setError(error?.message || "Google login failed");
+      toast({
+        title: "Login failed",
+        description: error?.message || "Google login failed",
+        variant: "destructive",
+      });
     } finally {
       setGoogleLoading(false);
     }
@@ -52,6 +66,12 @@ const Login = () => {
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
+            {error && (
+              <Alert variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+            
             <div className="space-y-2">
               <label htmlFor="email" className="text-sm font-medium">
                 Email
@@ -77,6 +97,7 @@ const Login = () => {
                 required
               />
             </div>
+            
             <div className="relative">
               <div className="flex items-center justify-center">
                 <span className="w-full border-t" />
@@ -84,6 +105,7 @@ const Login = () => {
                 <span className="w-full border-t" />
               </div>
             </div>
+            
             <Button 
               type="button" 
               onClick={handleGoogleLogin}
@@ -95,17 +117,18 @@ const Login = () => {
               {googleLoading ? "Redirecting..." : "Sign in with Google"}
             </Button>
           </CardContent>
+          
           <CardFooter className="flex flex-col space-y-4">
             <Button 
               type="submit" 
-              className="w-full" 
+              className="w-full bg-green-500 hover:bg-green-600" 
               disabled={isLoading}
             >
               {isLoading ? "Signing in..." : "Sign In"}
             </Button>
             <div className="text-center text-sm">
               Don't have an account?{" "}
-              <Link to="/register" className="text-primary hover:underline">
+              <Link to="/register" className="text-green-500 hover:underline">
                 Sign up
               </Link>
             </div>
