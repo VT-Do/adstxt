@@ -5,12 +5,15 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { LogIn } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const { signUp, isLoading } = useAuth();
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,6 +21,24 @@ const Register = () => {
       await signUp(email, password, fullName);
     } catch (error) {
       console.error("Registration error:", error);
+    }
+  };
+
+  const handleGoogleSignup = async () => {
+    setGoogleLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: window.location.origin + "/",
+        }
+      });
+      if (error) throw error;
+    } catch (error) {
+      console.error("Google sign up error:", error);
+      // Optionally show a toast
+    } finally {
+      setGoogleLoading(false);
     }
   };
 
@@ -74,6 +95,23 @@ const Register = () => {
                 Password must be at least 6 characters long
               </p>
             </div>
+            <div className="relative">
+              <div className="flex items-center justify-center">
+                <span className="w-full border-t" />
+                <span className="px-2 text-xs text-muted-foreground bg-white z-10">or</span>
+                <span className="w-full border-t" />
+              </div>
+            </div>
+            <Button 
+              type="button" 
+              onClick={handleGoogleSignup}
+              className="w-full"
+              variant="outline"
+              disabled={googleLoading}
+            >
+              <LogIn className="h-4 w-4 mr-2" />
+              {googleLoading ? "Redirecting..." : "Sign up with Google"}
+            </Button>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
             <Button 
