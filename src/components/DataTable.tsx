@@ -19,33 +19,42 @@ import {
 } from "@/components/ui/pagination";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown, Search, Download } from "lucide-react";
+import { ArrowUpDown, Search, Download, Plus, Trash } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { transformSheetData } from "@/utils/sheetTransform";
 
 interface DataTableProps {
   data: any[];
+  isAdmin?: boolean;
 }
 
-const DataTable: React.FC<DataTableProps> = ({ data }) => {
+const DataTable: React.FC<DataTableProps> = ({ data, isAdmin = false }) => {
   const [page, setPage] = useState(1);
   const [sortField, setSortField] = useState("");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [searchTerm, setSearchTerm] = useState("");
+  const [localData, setLocalData] = useState<any[]>([]);
   const pageSize = 10;
+
+  // Initialize local data from props
+  useEffect(() => {
+    if (data && data.length > 0) {
+      setLocalData(data);
+    }
+  }, [data]);
 
   // Transform raw data to use headers properly
   const processedData = useMemo(() => {
-    if (!data || data.length === 0) return [];
+    if (!localData || localData.length === 0) return [];
     
     // If data comes from a CSV, the first row should be headers
-    if (Array.isArray(data[0])) {
-      return transformSheetData(data);
+    if (Array.isArray(localData[0])) {
+      return transformSheetData(localData);
     }
     
     // If data is already in object format, return as is
-    return data;
-  }, [data]);
+    return localData;
+  }, [localData]);
 
   // For the prototype, if no data is provided, use sample data
   const sampleData = useMemo(() => {
@@ -121,6 +130,38 @@ const DataTable: React.FC<DataTableProps> = ({ data }) => {
     alert("This would export the current view as a CSV file");
   };
 
+  const addRow = () => {
+    if (!isAdmin) return;
+    
+    const newRow = {};
+    columns.forEach(column => {
+      newRow[column] = "";
+    });
+    
+    const newData = [...localData, newRow];
+    setLocalData(newData);
+  };
+
+  const deleteRow = (index) => {
+    if (!isAdmin) return;
+    
+    const newData = [...localData];
+    newData.splice((page - 1) * pageSize + index, 1);
+    setLocalData(newData);
+  };
+
+  const handleCellChange = (rowIndex, columnName, value) => {
+    if (!isAdmin) return;
+    
+    const newData = [...localData];
+    const dataIndex = (page - 1) * pageSize + rowIndex;
+    newData[dataIndex] = {
+      ...newData[dataIndex],
+      [columnName]: value
+    };
+    setLocalData(newData);
+  };
+
   if (columns.length === 0) {
     return (
       <Card>
@@ -141,15 +182,27 @@ const DataTable: React.FC<DataTableProps> = ({ data }) => {
       <CardHeader className="pb-3">
         <div className="flex justify-between items-center">
           <CardTitle>Sheet Data</CardTitle>
-          <Button 
-            size="sm" 
-            variant="outline" 
-            onClick={handleExport}
-            className="flex items-center gap-1"
-          >
-            <Download className="h-4 w-4" />
-            Export CSV
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              size="sm" 
+              variant="outline" 
+              onClick={handleExport}
+              className="flex items-center gap-1"
+            >
+              <Download className="h-4 w-4" />
+              Export CSV
+            </Button>
+            {isAdmin && (
+              <Button 
+                size="sm" 
+                onClick={addRow}
+                className="flex items-center gap-1"
+              >
+                <Plus className="h-4 w-4" />
+                Add Row
+              </Button>
+            )}
+          </div>
         </div>
         <div className="relative mt-3">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -184,14 +237,38 @@ const DataTable: React.FC<DataTableProps> = ({ data }) => {
                     </Button>
                   </TableHead>
                 ))}
+                {isAdmin && <TableHead className="w-[70px]">Actions</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
               {currentPageData.map((row, i) => (
                 <TableRow key={i}>
                   {columns.map((column) => (
-                    <TableCell key={column}>{row[column]}</TableCell>
+                    <TableCell key={column}>
+                      {isAdmin ? (
+                        <Input
+                          value={row[column] || ''}
+                          onChange={(e) => handleCellChange(i, column, e.target.value)}
+                          className="h-8 px-2 py-1"
+                        />
+                      ) : (
+                        row[column]
+                      )}
+                    </TableCell>
                   ))}
+                  {isAdmin && (
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-destructive"
+                        onClick={() => deleteRow(i)}
+                      >
+                        <Trash className="h-4 w-4" />
+                        <span className="sr-only">Delete</span>
+                      </Button>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>

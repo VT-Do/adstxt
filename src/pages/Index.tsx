@@ -4,9 +4,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SheetViewer from "@/components/SheetViewer";
 import ChartView from "@/components/ChartView";
 import { FileText, PieChart, Table2 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Index = () => {
   const [data, setData] = useState([]);
+  const { profile } = useAuth();
 
   const handleDataLoaded = (loadedData) => {
     setData(loadedData);
@@ -24,6 +26,9 @@ const Index = () => {
           </h1>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
             View, filter, and visualize GS files
+            {profile?.role === 'admin' && (
+              <span className="ml-2 text-primary font-medium">(Admin Access)</span>
+            )}
           </p>
         </header>
 

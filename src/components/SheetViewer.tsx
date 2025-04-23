@@ -4,19 +4,24 @@ import { Card } from "@/components/ui/card";
 import DataTable from "@/components/DataTable";
 import FilterControls from "@/components/FilterControls";
 import { fetchPublicSheetData, parseSheetId, parseSheetName } from "@/utils/googleApi";
-import { RefreshCw, Link } from "lucide-react";
+import { RefreshCw, Link, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { Progress } from "@/components/ui/progress";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { SheetDataRow } from "@/types";
 
 const SheetViewer = ({ onDataLoaded }) => {
   const [sheetData, setSheetData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [publicSheetUrl, setPublicSheetUrl] = useState("https://docs.google.com/spreadsheets/d/18BriA-gtmtxV8aL47vOpAWL-kFp2aQkxv_4-kbRJF-w/edit?gid=0#gid=0");
   const [activeSheet, setActiveSheet] = useState(null);
   const { toast } = useToast();
+  const { isAdmin, user } = useAuth();
 
   // Load the public sheet data when the component mounts
   useEffect(() => {
@@ -77,6 +82,62 @@ const SheetViewer = ({ onDataLoaded }) => {
     }
   };
 
+  const saveToSupabase = async () => {
+    if (!isAdmin || !user) {
+      toast({
+        title: "Permission denied",
+        description: "Only admin users can save sheet data",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setSaving(true);
+      
+      if (!activeSheet?.properties?.sheetId) {
+        toast({
+          title: "Error",
+          description: "No active sheet to save",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Prepare data for insertion
+      const rowsToInsert = sheetData.map(row => ({
+        sheet_id: activeSheet.properties.sheetId,
+        row_data: row,
+        created_by: user.id,
+        updated_by: user.id,
+      }));
+      
+      // Insert data into supabase
+      const { data, error } = await supabase
+        .from('sheet_data')
+        .insert(rowsToInsert);
+      
+      if (error) {
+        throw error;
+      }
+      
+      toast({
+        title: "Data saved successfully",
+        description: `Saved ${rowsToInsert.length} rows to the database`,
+        className: "bg-primary/20 border-primary text-foreground",
+      });
+    } catch (error: any) {
+      console.error("Error saving data to Supabase:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to save data",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <Card className="p-6 bg-card/50 border border-primary/10">
@@ -105,6 +166,17 @@ const SheetViewer = ({ onDataLoaded }) => {
                 )}
                 {loading ? "Loading..." : "Load Sheet"}
               </Button>
+              {isAdmin && (
+                <Button
+                  onClick={saveToSupabase}
+                  disabled={loading || saving || !sheetData.length}
+                  variant="outline"
+                  className="border-primary/20"
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  {saving ? "Saving..." : "Save to Database"}
+                </Button>
+              )}
             </div>
           </div>
         </div>
@@ -122,7 +194,7 @@ const SheetViewer = ({ onDataLoaded }) => {
           <FilterControls sheetData={sheetData} />
           
           <Card className="bg-card/50 border border-primary/10">
-            <DataTable data={sheetData} />
+            <DataTable data={sheetData} isAdmin={isAdmin} />
           </Card>
         </div>
       )}
