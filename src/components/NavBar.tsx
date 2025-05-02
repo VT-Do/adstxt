@@ -20,7 +20,38 @@ const NavBar = () => {
             OMP Test
           </Link>
           
-          {/* Navigation Links */}
+          {/* Primary Navigation Links */}
+          <nav className="hidden md:flex items-center space-x-1">
+            <Link to="/login">
+              <Button 
+                variant={isActive("/login") ? "default" : "ghost"} 
+                className="gap-2"
+              >
+                <FileText className="h-4 w-4" />
+                Line
+              </Button>
+            </Link>
+            <Link to="/library">
+              <Button 
+                variant={isActive("/library") ? "default" : "ghost"}
+                className="gap-2"
+              >
+                <Book className="h-4 w-4" />
+                Library
+              </Button>
+            </Link>
+            <Link to="/test">
+              <Button 
+                variant={isActive("/test") ? "default" : "ghost"} 
+                className="gap-2"
+              >
+                <TestTube className="h-4 w-4" />
+                Test
+              </Button>
+            </Link>
+          </nav>
+          
+          {/* Secondary Navigation (only visible when logged in) */}
           {user && (
             <nav className="hidden md:flex items-center space-x-1">
               <Link to="/">
@@ -32,24 +63,6 @@ const NavBar = () => {
                   Main
                 </Button>
               </Link>
-              <Link to="/login">
-                <Button 
-                  variant={isActive("/login") ? "default" : "ghost"} 
-                  className="gap-2"
-                >
-                  <FileText className="h-4 w-4" />
-                  Lines
-                </Button>
-              </Link>
-              <Link to="/library">
-                <Button 
-                  variant={isActive("/library") ? "default" : "ghost"}
-                  className="gap-2"
-                >
-                  <Book className="h-4 w-4" />
-                  Library
-                </Button>
-              </Link>
               <Link to="/contact">
                 <Button 
                   variant={isActive("/contact") ? "default" : "ghost"}
@@ -57,15 +70,6 @@ const NavBar = () => {
                 >
                   <Mail className="h-4 w-4" />
                   Contact
-                </Button>
-              </Link>
-              <Link to="/test">
-                <Button 
-                  variant={isActive("/test") ? "default" : "ghost"} 
-                  className="gap-2"
-                >
-                  <TestTube className="h-4 w-4" />
-                  Test
                 </Button>
               </Link>
               {isAdmin && (

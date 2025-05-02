@@ -46,8 +46,7 @@ const Login = () => {
         return;
       }
       
-      // In a real implementation, we would fetch all tabs from the Google Sheets API
-      // For this prototype, we're expanding the list to include more tabs from the sheet
+      // Complete list of all tabs in the sheet
       const allSheetTabs = [
         "GLOBAL", 
         "DE", 
@@ -69,7 +68,31 @@ const Login = () => {
         "IN",
         "KR",
         "MX",
-        "TR"
+        "TR",
+        "RU",
+        "PL",
+        "CH",
+        "DK",
+        "NO",
+        "FI",
+        "IE",
+        "BE",
+        "SG",
+        "HK",
+        "MY",
+        "TH",
+        "ID",
+        "PH",
+        "VN",
+        "AE",
+        "SA",
+        "EG",
+        "ZA",
+        "GR",
+        "RO",
+        "CZ",
+        "HU",
+        "IL"
       ];
       setSheetTabs(allSheetTabs);
       
@@ -214,7 +237,7 @@ const Login = () => {
                           <TableRow key={index}>
                             {Object.values(row).map((cell, cellIndex) => (
                               <TableCell key={`${index}-${cellIndex}`}>
-                                {cell}
+                                {cell !== null && cell !== undefined ? String(cell) : ""}
                               </TableCell>
                             ))}
                           </TableRow>
