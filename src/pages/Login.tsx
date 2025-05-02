@@ -9,6 +9,7 @@ import { fetchPublicSheetData, parseSheetId } from "@/utils/googleApi";
 import { transformSheetData } from "@/utils/sheetTransform";
 import { Table as UITable, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/components/ui/table";
 import { useToast } from "@/components/ui/use-toast";
+import axios from "axios";
 
 const Login = () => {
   const [activeTab, setActiveTab] = useState("line");
@@ -24,11 +25,17 @@ const Login = () => {
   
   useEffect(() => {
     if (activeTab === "line") {
-      loadSheetData();
+      loadSheetTabs();
     }
   }, [activeTab]);
+
+  useEffect(() => {
+    if (selectedSheetTab) {
+      loadSheetData(selectedSheetTab);
+    }
+  }, [selectedSheetTab]);
   
-  const loadSheetData = async () => {
+  const loadSheetTabs = async () => {
     try {
       setIsLoading(true);
       
@@ -44,25 +51,51 @@ const Login = () => {
         return;
       }
       
-      // Load the sheet data
-      const data = await fetchPublicSheetData(sheetId);
+      // For fetching sheet tabs, we need to use Google Sheets API
+      // Since we can't directly call the API in this prototype, we'll simulate
+      // fetching the tabs by looking at the sheet URL and docs
+      const actualSheetTabs = ["GLOBAL", "DE", "GLOBAL1"];
+      setSheetTabs(actualSheetTabs);
+      
+      // Set the first tab as selected by default
+      if (actualSheetTabs.length > 0 && !selectedSheetTab) {
+        setSelectedSheetTab(actualSheetTabs[0]);
+      }
+    } catch (error) {
+      console.error("Error loading sheet tabs:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load sheet tabs. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  const loadSheetData = async (tabName: string) => {
+    try {
+      setIsLoading(true);
+      
+      // Extract sheet ID from URL
+      const sheetId = parseSheetId(sheetUrl);
+      
+      if (!sheetId) {
+        toast({
+          title: "Error",
+          description: "Invalid Google Sheet URL",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Load the sheet data for the selected tab
+      const data = await fetchPublicSheetData(sheetId, tabName);
       
       if (data && data.length > 0) {
         // Transform raw data to objects with headers as keys
         const transformedData = transformSheetData(data);
         setSheetData(transformedData);
-        
-        // Get sheet tabs (simulated for this example)
-        // In a real implementation, you'd fetch the actual sheet tabs
-        const testTabs = ["Main Data", "Summary", "Analysis"];
-        setSheetTabs(testTabs);
-        setSelectedSheetTab(testTabs[0]);
-        
-        toast({
-          title: "Sheet loaded successfully",
-          description: `Loaded ${transformedData.length} rows of data`,
-          className: "bg-primary/20 border-primary text-foreground",
-        });
       }
     } catch (error) {
       console.error("Error loading sheet data:", error);
@@ -169,7 +202,7 @@ const Login = () => {
                       Loading...
                     </Button>
                   ) : (
-                    <Button onClick={loadSheetData}>
+                    <Button onClick={() => loadSheetData(selectedSheetTab)}>
                       <Loader2 className="mr-2 h-4 w-4" />
                       Refresh Data
                     </Button>
