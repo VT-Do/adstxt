@@ -50,8 +50,6 @@ const Login = () => {
       const allSheetTabs = [
         "GLOBAL", 
         "DE", 
-        "GLOBAL1", 
-        "DE1", 
         "ES", 
         "IT", 
         "FR", 
