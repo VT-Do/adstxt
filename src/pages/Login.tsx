@@ -51,15 +51,28 @@ const Login = () => {
         return;
       }
       
-      // For fetching sheet tabs, we need to use Google Sheets API
-      // Since we can't directly call the API in this prototype, we'll simulate
-      // fetching the tabs by looking at the sheet URL and docs
-      const actualSheetTabs = ["GLOBAL", "DE", "GLOBAL1"];
-      setSheetTabs(actualSheetTabs);
+      // In a real implementation, we would fetch all tabs from the Google Sheets API
+      // For this prototype, we're using an expanded list of tabs from the sheet
+      const allSheetTabs = [
+        "GLOBAL", 
+        "DE", 
+        "GLOBAL1", 
+        "US", 
+        "UK", 
+        "FR", 
+        "ES", 
+        "IT", 
+        "JP", 
+        "CN", 
+        "BR", 
+        "CA", 
+        "AU"
+      ];
+      setSheetTabs(allSheetTabs);
       
       // Set the first tab as selected by default
-      if (actualSheetTabs.length > 0 && !selectedSheetTab) {
-        setSelectedSheetTab(actualSheetTabs[0]);
+      if (allSheetTabs.length > 0 && !selectedSheetTab) {
+        setSelectedSheetTab(allSheetTabs[0]);
       }
     } catch (error) {
       console.error("Error loading sheet tabs:", error);
