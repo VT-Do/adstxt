@@ -2,13 +2,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu";
+import { FileText, Book, TestTube, Home, Mail, LogOut } from "lucide-react";
 
 const NavBar = () => {
   const location = useLocation();
@@ -19,57 +13,72 @@ const NavBar = () => {
   };
 
   return (
-    <header className="border-b sticky top-0 z-40 bg-background">
+    <header className="border-b sticky top-0 z-40 bg-white">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-6">
-          <Link to="/" className="text-xl font-bold">
+          <Link to="/" className="text-2xl font-bold text-primary">
             OMP Test
           </Link>
           
-          {/* Freeze tabs as a navigation menu */}
+          {/* Navigation Links */}
           {user && (
-            <NavigationMenu>
-              <NavigationMenuList className="gap-1">
-                <NavigationMenuItem>
-                  <Link to="/">
-                    <NavigationMenuLink 
-                      className={navigationMenuTriggerStyle({ className: isActive("/") ? "bg-accent" : "" })}
-                    >
-                      Main
-                    </NavigationMenuLink>
-                  </Link>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <Link to="/library">
-                    <NavigationMenuLink 
-                      className={navigationMenuTriggerStyle({ className: isActive("/library") ? "bg-accent" : "" })}
-                    >
-                      Library
-                    </NavigationMenuLink>
-                  </Link>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <Link to="/contact">
-                    <NavigationMenuLink 
-                      className={navigationMenuTriggerStyle({ className: isActive("/contact") ? "bg-accent" : "" })}
-                    >
-                      Contact
-                    </NavigationMenuLink>
-                  </Link>
-                </NavigationMenuItem>
-                {isAdmin && (
-                  <NavigationMenuItem>
-                    <Link to="/admin">
-                      <NavigationMenuLink 
-                        className={navigationMenuTriggerStyle({ className: isActive("/admin") ? "bg-accent" : "" })}
-                      >
-                        Admin
-                      </NavigationMenuLink>
-                    </Link>
-                  </NavigationMenuItem>
-                )}
-              </NavigationMenuList>
-            </NavigationMenu>
+            <nav className="hidden md:flex items-center space-x-1">
+              <Link to="/">
+                <Button 
+                  variant={isActive("/") ? "default" : "ghost"} 
+                  className="gap-2"
+                >
+                  <Home className="h-4 w-4" />
+                  Main
+                </Button>
+              </Link>
+              <Link to="/login">
+                <Button 
+                  variant={isActive("/login") ? "default" : "ghost"} 
+                  className="gap-2"
+                >
+                  <FileText className="h-4 w-4" />
+                  Lines
+                </Button>
+              </Link>
+              <Link to="/library">
+                <Button 
+                  variant={isActive("/library") ? "default" : "ghost"}
+                  className="gap-2"
+                >
+                  <Book className="h-4 w-4" />
+                  Library
+                </Button>
+              </Link>
+              <Link to="/contact">
+                <Button 
+                  variant={isActive("/contact") ? "default" : "ghost"}
+                  className="gap-2"
+                >
+                  <Mail className="h-4 w-4" />
+                  Contact
+                </Button>
+              </Link>
+              <Link to="/test">
+                <Button 
+                  variant={isActive("/test") ? "default" : "ghost"} 
+                  className="gap-2"
+                >
+                  <TestTube className="h-4 w-4" />
+                  Test
+                </Button>
+              </Link>
+              {isAdmin && (
+                <Link to="/admin">
+                  <Button 
+                    variant={isActive("/admin") ? "default" : "ghost"}
+                    className="gap-2"
+                  >
+                    Admin
+                  </Button>
+                </Link>
+              )}
+            </nav>
           )}
         </div>
         <div className="flex items-center gap-4">
@@ -83,7 +92,8 @@ const NavBar = () => {
                   </span>
                 )}
               </div>
-              <Button onClick={signOut} variant="outline" size="sm">
+              <Button onClick={signOut} variant="ghost" size="sm" className="gap-2">
+                <LogOut className="h-4 w-4" />
                 Log out
               </Button>
             </div>

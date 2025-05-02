@@ -1,33 +1,28 @@
 
 import React, { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown, ChevronUp, Download, Loader2, Table, Book, TestTube } from "lucide-react";
+import { Search, RefreshCw, Loader2, Download } from "lucide-react";
 import { fetchPublicSheetData, parseSheetId } from "@/utils/googleApi";
 import { transformSheetData } from "@/utils/sheetTransform";
-import { Table as UITable, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/components/ui/table";
+import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/components/ui/table";
 import { useToast } from "@/components/ui/use-toast";
-import axios from "axios";
+import { Input } from "@/components/ui/input";
 
 const Login = () => {
-  const [activeTab, setActiveTab] = useState("line");
-  const [isTabsCollapsed, setIsTabsCollapsed] = useState(false);
   const [sheetData, setSheetData] = useState<any[]>([]);
   const [sheetTabs, setSheetTabs] = useState<string[]>([]);
   const [selectedSheetTab, setSelectedSheetTab] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
   
   // Google Sheet URL from the user's request
   const sheetUrl = "https://docs.google.com/spreadsheets/d/1z2NQ13FS_eVrgRd-b49_tsGKtemXpi1v/edit?gid=916740284#gid=916740284";
   
   useEffect(() => {
-    if (activeTab === "line") {
-      loadSheetTabs();
-    }
-  }, [activeTab]);
+    loadSheetTabs();
+  }, []);
 
   useEffect(() => {
     if (selectedSheetTab) {
@@ -52,7 +47,7 @@ const Login = () => {
       }
       
       // In a real implementation, we would fetch all tabs from the Google Sheets API
-      // For this prototype, we're using an expanded list of tabs from the sheet
+      // For this prototype, we're expanding the list to include more tabs from the sheet
       const allSheetTabs = [
         "GLOBAL", 
         "DE", 
@@ -66,7 +61,15 @@ const Login = () => {
         "CN", 
         "BR", 
         "CA", 
-        "AU"
+        "AU",
+        "NL",
+        "PT",
+        "SE",
+        "AT",
+        "IN",
+        "KR",
+        "MX",
+        "TR"
       ];
       setSheetTabs(allSheetTabs);
       
@@ -122,155 +125,111 @@ const Login = () => {
     }
   };
   
-  const toggleTabs = () => {
-    setIsTabsCollapsed(!isTabsCollapsed);
-  };
-
-  // Helper function to render table based on sheet data
-  const renderTableData = () => {
-    if (!sheetData || sheetData.length === 0) {
-      return (
-        <div className="text-center py-8">
-          <p className="text-muted-foreground">No data available</p>
-        </div>
-      );
-    }
-    
-    const headers = Object.keys(sheetData[0]);
-    
-    return (
-      <div className="overflow-auto max-h-[500px]">
-        <UITable>
-          <TableHeader>
-            <TableRow>
-              {headers.map((header) => (
-                <TableHead key={header}>{header}</TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {sheetData.map((row, index) => (
-              <TableRow key={index}>
-                {headers.map((header) => (
-                  <TableCell key={`${index}-${header}`}>{row[header]}</TableCell>
-                ))}
-              </TableRow>
-            ))}
-          </TableBody>
-        </UITable>
-      </div>
-    );
-  };
+  const filteredData = searchTerm 
+    ? sheetData.filter(row => 
+        Object.values(row).some(
+          value => String(value).toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      )
+    : sheetData;
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
-      {/* Freezable Tabs Section */}
-      <Collapsible
-        open={!isTabsCollapsed}
-        className="w-full border-b border-gray-200 bg-white sticky top-0 z-10 shadow-sm"
-      >
-        <div className="container mx-auto px-4">
-          <div className="flex justify-between items-center py-2">
-            <h1 className="text-xl font-bold">Data Explorer</h1>
-            <CollapsibleTrigger asChild>
-              <Button variant="ghost" size="sm" onClick={toggleTabs}>
-                {isTabsCollapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
-                {isTabsCollapsed ? "Show Tabs" : "Hide Tabs"}
-              </Button>
-            </CollapsibleTrigger>
-          </div>
-          
-          <CollapsibleContent>
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full py-2">
-              <TabsList className="w-full justify-start border-b">
-                <TabsTrigger value="line" className="flex items-center gap-2">
-                  <Table className="h-4 w-4" />
-                  Line
-                </TabsTrigger>
-                <TabsTrigger value="library" className="flex items-center gap-2">
-                  <Book className="h-4 w-4" />
-                  Library
-                </TabsTrigger>
-                <TabsTrigger value="test" className="flex items-center gap-2">
-                  <TestTube className="h-4 w-4" />
-                  Test
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </CollapsibleContent>
-        </div>
-      </Collapsible>
-
-      {/* Tab Content */}
+    <div className="flex flex-col min-h-screen bg-[#0f1429]">
+      {/* Main Content */}
       <div className="container mx-auto px-4 py-6 flex-grow">
-        <div className="bg-white rounded-lg shadow-md p-6">
-          {activeTab === "line" && (
-            <div className="space-y-6">
-              <div className="flex justify-between items-center">
-                <h2 className="text-xl font-semibold">Line Data</h2>
-                <div className="flex items-center gap-2">
-                  {isLoading ? (
-                    <Button disabled>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Loading...
-                    </Button>
-                  ) : (
-                    <Button onClick={() => loadSheetData(selectedSheetTab)}>
-                      <Loader2 className="mr-2 h-4 w-4" />
-                      Refresh Data
-                    </Button>
-                  )}
-                  <Button variant="outline">
-                    <Download className="mr-2 h-4 w-4" />
-                    Export
-                  </Button>
-                </div>
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-white mb-2">Lines Data</h1>
+        </div>
+
+        <div className="space-y-6">
+          {/* Tabs Navigation - Horizontal scrollable list */}
+          <div className="bg-white rounded-md overflow-auto">
+            <div className="flex">
+              {sheetTabs.map((tab) => (
+                <Button
+                  key={tab}
+                  variant={selectedSheetTab === tab ? "default" : "ghost"}
+                  className={`rounded-none px-6 py-2 h-12 ${
+                    selectedSheetTab === tab 
+                      ? "bg-primary text-white" 
+                      : "text-gray-700 hover:text-primary"
+                  }`}
+                  onClick={() => setSelectedSheetTab(tab)}
+                >
+                  {tab}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-md">
+            <div className="p-4 flex justify-between items-center border-b">
+              <div className="relative w-full max-w-md">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Search data..."
+                  className="pl-10 border-gray-300"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
               </div>
-              
-              {sheetTabs.length > 0 && (
-                <div className="border-b">
-                  <div className="flex overflow-x-auto">
-                    {sheetTabs.map((tab) => (
-                      <Button
-                        key={tab}
-                        variant={selectedSheetTab === tab ? "default" : "ghost"}
-                        className="rounded-none"
-                        onClick={() => setSelectedSheetTab(tab)}
-                      >
-                        {tab}
-                      </Button>
-                    ))}
+
+              <Button
+                onClick={() => loadSheetData(selectedSheetTab)}
+                disabled={isLoading}
+                className="ml-4"
+              >
+                {isLoading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="mr-2 h-4 w-4" />
+                )}
+                Refresh Data
+              </Button>
+            </div>
+
+            {isLoading ? (
+              <div className="flex justify-center items-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                {sheetData.length > 0 ? (
+                  <>
+                    <div className="text-sm text-gray-500 p-4">
+                      Showing {filteredData.length} of {sheetData.length} records
+                    </div>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          {Object.keys(sheetData[0]).map((header) => (
+                            <TableHead key={header} className="font-medium">
+                              {header}
+                            </TableHead>
+                          ))}
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredData.map((row, index) => (
+                          <TableRow key={index}>
+                            {Object.values(row).map((cell, cellIndex) => (
+                              <TableCell key={`${index}-${cellIndex}`}>
+                                {cell}
+                              </TableCell>
+                            ))}
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </>
+                ) : (
+                  <div className="text-center py-12">
+                    <p className="text-gray-500">No data available for this tab</p>
                   </div>
-                </div>
-              )}
-              
-              {isLoading ? (
-                <div className="flex justify-center items-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                </div>
-              ) : (
-                renderTableData()
-              )}
-            </div>
-          )}
-          
-          {activeTab === "library" && (
-            <div>
-              <h2 className="text-xl font-semibold mb-4">Library</h2>
-              <p className="text-muted-foreground">
-                Access your saved sheets and templates in the library tab.
-              </p>
-            </div>
-          )}
-          
-          {activeTab === "test" && (
-            <div>
-              <h2 className="text-xl font-semibold mb-4">Test</h2>
-              <p className="text-muted-foreground">
-                Run tests and view test results in the test tab.
-              </p>
-            </div>
-          )}
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
