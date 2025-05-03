@@ -16,12 +16,12 @@ const NavBar = () => {
     <header className="border-b sticky top-0 z-40 bg-white">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-6">
-          <Link to="/" className="text-2xl font-bold text-primary">
-            OMP Test
+          <Link to="/" className="text-2xl font-bold bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">
+            OMP Team
           </Link>
           
           {/* Primary Navigation Links */}
-          <nav className="hidden md:flex items-center space-x-1">
+          <nav className="flex items-center space-x-1">
             <Link to="/login">
               <Button 
                 variant={isActive("/login") ? "default" : "ghost"} 

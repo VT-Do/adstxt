@@ -21,8 +21,8 @@ const Index = () => {
           <div className="inline-block mb-4 p-3 bg-primary/10 rounded-full">
             <Table2 className="h-10 w-10 text-primary" />
           </div>
-          <h1 className="text-4xl font-bold text-primary mb-2 tracking-tight">
-            OMP Test
+          <h1 className="text-4xl font-bold mb-2 tracking-tight bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">
+            OMP Team
           </h1>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
             View, filter, and visualize GS files
