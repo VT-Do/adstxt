@@ -58,8 +58,7 @@ export const useSheetData = (sheetUrl: string, initialTabName: string = "") => {
         "PE",
         "LATAM",
         "NORDIC",
-        "APAC",
-        "PT"
+        "APAC"
       ];
       setSheetTabs(allSheetTabs);
       
