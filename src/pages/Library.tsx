@@ -1,25 +1,29 @@
 
 import React, { useState, useEffect } from "react";
-import { useAuth } from "@/contexts/AuthContext";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { fetchPublicSheetData, parseSheetId } from "@/utils/googleApi";
-import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/components/ui/table";
+import { transformSheetData } from "@/utils/sheetTransform";
 import { useToast } from "@/components/ui/use-toast";
+import SearchToolbar from "@/components/SearchToolbar";
+import DataTableView from "@/components/DataTableView";
 import { Loader2 } from "lucide-react";
 
 const Library = () => {
-  const { isAdmin } = useAuth();
   const [sheetData, setSheetData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
   
-  // Google Sheet URL from your request
-  const sheetUrl = "https://docs.google.com/spreadsheets/d/1o14-srgPH-3-_kFfQSXUvse9Yz-PQaHxKTbVdkroxHc/edit?gid=0#gid=0";
-  
+  // Google Sheet URL - we'll let users input this when needed
+  const [sheetUrl, setSheetUrl] = useState(""); 
+
   useEffect(() => {
-    loadSheetData();
-  }, []);
-  
+    // Load data when component mounts if we have a URL
+    if (sheetUrl) {
+      loadSheetData();
+    }
+  }, [sheetUrl]);
+
   const loadSheetData = async () => {
     try {
       setIsLoading(true);
@@ -36,23 +40,18 @@ const Library = () => {
         return;
       }
       
-      // Load the main sheet data without handling multiple tabs
+      // Load the main sheet data
       const data = await fetchPublicSheetData(sheetId);
       
       if (data && data.length > 0) {
-        // Transform the data to objects
-        const headers = data[0];
-        const rows = data.slice(1);
-        
-        const transformedData = rows.map(row => {
-          const obj: Record<string, any> = {};
-          headers.forEach((header: string, index: number) => {
-            obj[header] = row[index];
-          });
-          return obj;
-        });
-        
+        // Transform raw data to objects with headers as keys
+        const transformedData = transformSheetData(data);
         setSheetData(transformedData);
+        
+        toast({
+          title: "Library data loaded",
+          description: "Sheet data loaded successfully",
+        });
       }
     } catch (error) {
       console.error("Error loading sheet data:", error);
@@ -66,100 +65,107 @@ const Library = () => {
     }
   };
 
+  // Filter data based on search term
+  const filteredData = searchTerm 
+    ? sheetData.filter(row => 
+        Object.values(row).some(
+          value => String(value).toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      )
+    : sheetData;
+
+  const handleRefresh = () => {
+    loadSheetData();
+  };
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Library</h1>
-      
-      <div className="bg-white rounded-lg shadow-md mb-6">
-        <div className="p-6 border-b">
-          <h2 className="text-xl font-semibold">Sheet Library Data</h2>
-          <p className="text-sm text-gray-500 mt-1">
-            Data from: {sheetUrl}
-          </p>
+    <div className="flex flex-col min-h-screen bg-[#0f1429]">
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-6 flex-grow">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-white mb-2">Library</h1>
+          <p className="text-gray-300">Access your library data sheets</p>
         </div>
-        
-        {isLoading ? (
-          <div className="flex justify-center items-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
+
+        <div className="space-y-6">
+          {/* Card for displaying data */}
+          <div className="bg-white rounded-lg shadow-md">
+            {/* Search and Refresh Toolbar */}
+            <SearchToolbar 
+              searchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+              onRefresh={handleRefresh}
+              isLoading={isLoading}
+            />
+
+            {/* Data Table */}
             {sheetData.length > 0 ? (
-              <>
-                <div className="text-sm text-gray-500 p-4">
-                  Showing {sheetData.length} records
-                </div>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      {Object.keys(sheetData[0]).map((header) => (
-                        <TableHead key={header} className="font-medium">
-                          {header}
-                        </TableHead>
-                      ))}
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {sheetData.map((row, index) => (
-                      <TableRow key={index}>
-                        {Object.values(row).map((cell, cellIndex) => (
-                          <TableCell key={`${index}-${cellIndex}`}>
-                            {cell !== null && cell !== undefined ? String(cell) : ""}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </>
+              <DataTableView 
+                isLoading={isLoading}
+                data={sheetData}
+                filteredData={filteredData}
+              />
             ) : (
               <div className="text-center py-12">
-                <p className="text-gray-500">No data available</p>
+                <p className="text-gray-500">
+                  {isLoading ? (
+                    <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary mb-4" />
+                  ) : (
+                    "Please use the input below to load a sheet"
+                  )}
+                </p>
+                
+                {/* Sheet URL input */}
+                <div className="max-w-md mx-auto mt-4 p-4">
+                  <input
+                    type="text"
+                    value={sheetUrl}
+                    onChange={(e) => setSheetUrl(e.target.value)}
+                    placeholder="Enter Google Sheet URL here..."
+                    className="w-full rounded-md border px-4 py-2 mb-2"
+                  />
+                  <button
+                    onClick={loadSheetData}
+                    disabled={isLoading || !sheetUrl}
+                    className="bg-primary text-white px-4 py-2 rounded hover:bg-primary/90 transition-colors disabled:opacity-50"
+                  >
+                    Load Sheet
+                  </button>
+                </div>
               </div>
             )}
           </div>
-        )}
-      </div>
-      
-      {/* Keep the existing cards for additional library resources */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Sheet Library</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground">
-              Access your saved sheets and templates.
-            </p>
-            {isAdmin && (
-              <p className="text-sm mt-4 p-2 bg-primary/10 rounded-md">
-                As an admin, you have full access to manage the sheet library.
-              </p>
-            )}
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Sheets</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground">
-              Quick access to recently viewed sheets.
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle>Templates</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground">
-              Pre-defined sheet templates to get started quickly.
-            </p>
-          </CardContent>
-        </Card>
+          
+          {/* Additional library resources */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card className="bg-white/10 backdrop-blur-md border border-white/10">
+              <div className="p-6">
+                <h3 className="text-xl font-medium text-white mb-2">Sheet Library</h3>
+                <p className="text-gray-300">
+                  Access your saved sheets and templates.
+                </p>
+              </div>
+            </Card>
+            
+            <Card className="bg-white/10 backdrop-blur-md border border-white/10">
+              <div className="p-6">
+                <h3 className="text-xl font-medium text-white mb-2">Recent Sheets</h3>
+                <p className="text-gray-300">
+                  Quick access to recently viewed sheets.
+                </p>
+              </div>
+            </Card>
+            
+            <Card className="bg-white/10 backdrop-blur-md border border-white/10">
+              <div className="p-6">
+                <h3 className="text-xl font-medium text-white mb-2">Templates</h3>
+                <p className="text-gray-300">
+                  Pre-defined sheet templates to get started quickly.
+                </p>
+              </div>
+            </Card>
+          </div>
+        </div>
       </div>
     </div>
   );
