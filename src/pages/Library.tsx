@@ -46,10 +46,6 @@ const Library = () => {
         const transformedData = transformSheetData(data);
         setSheetData(transformedData);
         
-        toast({
-          title: "Library data loaded",
-          description: "Sheet data loaded successfully",
-        });
       }
     } catch (error) {
       console.error("Error loading sheet data:", error);
