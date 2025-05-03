@@ -14,15 +14,13 @@ const Library = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
   
-  // Google Sheet URL - we'll let users input this when needed
-  const [sheetUrl, setSheetUrl] = useState(""); 
+  // Predefined Google Sheet URL - hardcoded but not shown to user
+  const sheetUrl = "https://docs.google.com/spreadsheets/d/1o14-srgPH-3-_kFfQSXUvse9Yz-PQaHxKTbVdkroxHc/edit";
 
   useEffect(() => {
-    // Load data when component mounts if we have a URL
-    if (sheetUrl) {
-      loadSheetData();
-    }
-  }, [sheetUrl]);
+    // Load data when component mounts
+    loadSheetData();
+  }, []);
 
   const loadSheetData = async () => {
     try {
@@ -111,27 +109,9 @@ const Library = () => {
                   {isLoading ? (
                     <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary mb-4" />
                   ) : (
-                    "Please use the input below to load a sheet"
+                    "No data available. Click refresh to try loading data again."
                   )}
                 </p>
-                
-                {/* Sheet URL input */}
-                <div className="max-w-md mx-auto mt-4 p-4">
-                  <input
-                    type="text"
-                    value={sheetUrl}
-                    onChange={(e) => setSheetUrl(e.target.value)}
-                    placeholder="Enter Google Sheet URL here..."
-                    className="w-full rounded-md border px-4 py-2 mb-2"
-                  />
-                  <button
-                    onClick={loadSheetData}
-                    disabled={isLoading || !sheetUrl}
-                    className="bg-primary text-white px-4 py-2 rounded hover:bg-primary/90 transition-colors disabled:opacity-50"
-                  >
-                    Load Sheet
-                  </button>
-                </div>
               </div>
             )}
           </div>
