@@ -24,16 +24,12 @@ const AppRoutes = () => (
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/library" element={<Library />} />
+        <Route path="/test" element={<NotFound />} /> {/* Using NotFound as placeholder for Test page */}
         
         <Route path="/" element={
           <ProtectedRoute>
             <Index />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/library" element={
-          <ProtectedRoute>
-            <Library />
           </ProtectedRoute>
         } />
         
