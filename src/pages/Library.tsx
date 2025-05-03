@@ -82,7 +82,6 @@ const Library = () => {
       <div className="container mx-auto px-4 py-6 flex-grow">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-white mb-2">Library</h1>
-          <p className="text-gray-300">Access your library data sheets</p>
         </div>
 
         <div className="space-y-6">
