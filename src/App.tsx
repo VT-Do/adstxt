@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -25,7 +24,7 @@ const AppRoutes = () => (
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/library" element={<Library />} />
-        <Route path="/test" element={<NotFound />} /> {/* Using NotFound as placeholder for Test page */}
+        <Route path="/contact" element={<Contact />} />
         
         <Route path="/" element={
           <ProtectedRoute>

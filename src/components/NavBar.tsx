@@ -1,7 +1,8 @@
+
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { FileText, Book, TestTube, Home, Mail, LogOut } from "lucide-react";
+import { FileText, Book, Mail, Home, LogOut } from "lucide-react";
 
 const NavBar = () => {
   const location = useLocation();
@@ -39,13 +40,13 @@ const NavBar = () => {
                 Library
               </Button>
             </Link>
-            <Link to="/test">
+            <Link to="/contact">
               <Button 
-                variant={isActive("/test") ? "default" : "ghost"} 
+                variant={isActive("/contact") ? "default" : "ghost"} 
                 className="gap-2"
               >
-                <TestTube className="h-4 w-4" />
-                Test
+                <Mail className="h-4 w-4" />
+                Contact
               </Button>
             </Link>
           </nav>
@@ -60,15 +61,6 @@ const NavBar = () => {
                 >
                   <Home className="h-4 w-4" />
                   Main
-                </Button>
-              </Link>
-              <Link to="/contact">
-                <Button 
-                  variant={isActive("/contact") ? "default" : "ghost"}
-                  className="gap-2"
-                >
-                  <Mail className="h-4 w-4" />
-                  Contact
                 </Button>
               </Link>
               {isAdmin && (
