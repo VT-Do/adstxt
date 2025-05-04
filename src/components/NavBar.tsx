@@ -28,7 +28,7 @@ const NavBar = () => {
                 className="gap-2"
               >
                 <FileText className="h-4 w-4" />
-                Line
+                Lines by Market
               </Button>
             </Link>
             <Link to="/library">
