@@ -21,27 +21,27 @@ import {
 const teamMembers = [
   {
     id: 1,
-    name: "Test name 1",
-    position: "VP programmatic",
-    email: "test1@gmail.com",
+    name: "Andrea De Filippo",
+    position: "VP Global Operations & Programmatic",
+    email: "andrea.defilippo@showheroes-group.com",
   },
   {
     id: 2,
-    name: "Test name 2",
-    position: "VP operation",
-    email: "test2@gmail.com",
+    name: "Hannes Meering",
+    position: "VP Global Ad Operations",
+    email: "hannes.meering@showheroes-group.com",
   },
   {
     id: 3,
-    name: "Test name 3",
-    position: "Team lead",
-    email: "test3@gmail.com",
+    name: "Emre Aylanç",
+    position: "Senior Yield Optimization Manager",
+    email: "emre.aylanc@showheroes-group.com",
   },
   {
     id: 4,
-    name: "Test name 4",
+    name: "Van Tiep Do",
     position: "Data analyst",
-    email: "test4@gmail.com",
+    email: "van.tiep.do@showheroes-group.com",
   },
 ];
 
@@ -133,7 +133,7 @@ const Contact = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <Phone className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">+1 (555) 123-4567</span>
+                  <span className="text-sm">+** **********</span>
                 </div>
               </div>
             </CardContent>
