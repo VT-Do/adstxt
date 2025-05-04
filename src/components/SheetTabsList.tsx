@@ -19,7 +19,7 @@ const SheetTabsList: React.FC<SheetTabsListProps> = ({
           <Button
             key={tab}
             variant={selectedTab === tab ? "default" : "ghost"}
-            className={`rounded-none px-6 py-2 h-12 ${
+            className={`rounded-none px-5 py-2 h-12 ${
               selectedTab === tab 
                 ? "bg-primary text-white" 
                 : "text-gray-700 hover:text-primary"
