@@ -1,10 +1,9 @@
 
 import React from "react";
-import { Card } from "@/components/ui/card";
 import { useSheetData } from "@/hooks/useSheetData";
 import SheetTabsList from "@/components/SheetTabsList";
 import SearchToolbar from "@/components/SearchToolbar";
-import DataTableView from "@/components/DataTableView";
+import PaginatedDataTable from "@/components/PaginatedDataTable";
 
 const Login = () => {
   // Google Sheet URL from the user's request
@@ -53,8 +52,8 @@ const Login = () => {
               isLoading={isLoading}
             />
 
-            {/* Data Table */}
-            <DataTableView 
+            {/* Data Table with Pagination and Sorting */}
+            <PaginatedDataTable 
               isLoading={isLoading}
               data={sheetData}
               filteredData={filteredData}

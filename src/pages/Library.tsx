@@ -5,7 +5,7 @@ import { fetchPublicSheetData, parseSheetId } from "@/utils/googleApi";
 import { transformSheetData } from "@/utils/sheetTransform";
 import { useToast } from "@/components/ui/use-toast";
 import SearchToolbar from "@/components/SearchToolbar";
-import DataTableView from "@/components/DataTableView";
+import PaginatedDataTable from "@/components/PaginatedDataTable";
 import { Loader2 } from "lucide-react";
 
 const Library = () => {
@@ -45,7 +45,6 @@ const Library = () => {
         // Transform raw data to objects with headers as keys
         const transformedData = transformSheetData(data);
         setSheetData(transformedData);
-        
       }
     } catch (error) {
       console.error("Error loading sheet data:", error);
@@ -91,9 +90,9 @@ const Library = () => {
               isLoading={isLoading}
             />
 
-            {/* Data Table */}
+            {/* Data Table with Pagination and Sorting */}
             {sheetData.length > 0 ? (
-              <DataTableView 
+              <PaginatedDataTable 
                 isLoading={isLoading}
                 data={sheetData}
                 filteredData={filteredData}

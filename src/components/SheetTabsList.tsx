@@ -14,13 +14,13 @@ const SheetTabsList: React.FC<SheetTabsListProps> = ({
   onSelectTab 
 }) => {
   return (
-    <div className="bg-white rounded-md overflow-auto">
-      <div className="flex">
+    <div className="bg-white rounded-md overflow-x-auto">
+      <div className="flex w-full">
         {tabs.map((tab) => (
           <Button
             key={tab}
             variant={selectedTab === tab ? "default" : "ghost"}
-            className={`rounded-none px-6 py-2 h-12 ${
+            className={`rounded-none px-3 py-2 h-12 flex-1 whitespace-nowrap ${
               selectedTab === tab 
                 ? "bg-primary text-white" 
                 : "text-gray-700 hover:text-primary"
