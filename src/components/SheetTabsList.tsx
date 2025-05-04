@@ -14,7 +14,7 @@ const SheetTabsList: React.FC<SheetTabsListProps> = ({
 }) => {
   return (
     <div className="bg-white rounded-md overflow-auto">
-      <div className="flex">
+      <div className="flex w-full">
         {tabs.map((tab) => (
           <Button
             key={tab}
