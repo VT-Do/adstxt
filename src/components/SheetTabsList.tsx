@@ -7,24 +7,21 @@ interface SheetTabsListProps {
   onSelectTab: (tab: string) => void;
 }
 
-const SheetTabsList: React.FC<SheetTabsListProps> = ({
-  tabs,
-  selectedTab,
-  onSelectTab,
+const SheetTabsList: React.FC<SheetTabsListProps> = ({ 
+  tabs, 
+  selectedTab, 
+  onSelectTab 
 }) => {
   return (
-    <div className="bg-white rounded-md overflow-x-auto">
-      <div
-        className={`grid grid-cols-${tabs.length} min-w-full`}
-        style={{ minWidth: `${tabs.length * 100}px` }} // fallback for very small screens
-      >
+    <div className="bg-white rounded-md overflow-auto">
+      <div className="flex">
         {tabs.map((tab) => (
           <Button
             key={tab}
             variant={selectedTab === tab ? "default" : "ghost"}
-            className={`rounded-none w-full h-12 text-sm ${
-              selectedTab === tab
-                ? "bg-primary text-white"
+            className={`rounded-none px-6 py-2 h-12 ${
+              selectedTab === tab 
+                ? "bg-primary text-white" 
                 : "text-gray-700 hover:text-primary"
             }`}
             onClick={() => onSelectTab(tab)}
