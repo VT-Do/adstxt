@@ -18,7 +18,7 @@ const SheetTabsList: React.FC<SheetTabsListProps> = ({
   }
 
   return (
-    <div className="w-full overflow-x-auto bg-[#0f1429] rounded-t-lg p-1">
+    <div className="w-full overflow-x-auto bg-white rounded-t-lg p-1">
       <div className="flex min-w-max">
         {tabs.map((tab) => (
           <button
@@ -28,7 +28,7 @@ const SheetTabsList: React.FC<SheetTabsListProps> = ({
               "px-6 py-2 text-sm font-medium rounded-md transition-colors whitespace-nowrap",
               selectedTab === tab
                 ? "bg-primary text-white"
-                : "bg-transparent text-white hover:bg-white/10"
+                : "bg-transparent text-gray-700 hover:bg-gray-100"
             )}
           >
             {tab}
