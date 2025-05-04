@@ -40,7 +40,7 @@ const teamMembers = [
   {
     id: 4,
     name: "Van Tiep Do",
-    position: "Data analyst",
+    position: "Data Analyst",
     email: "van.tiep.do@showheroes-group.com",
   },
 ];
