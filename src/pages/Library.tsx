@@ -14,6 +14,9 @@ const Library = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
   
+  // State for column visibility
+  const [visibleColumns, setVisibleColumns] = useState<string[]>([]);
+  
   // Predefined Google Sheet URL - hardcoded but not shown to user
   const sheetUrl = "https://docs.google.com/spreadsheets/d/1o14-srgPH-3-_kFfQSXUvse9Yz-PQaHxKTbVdkroxHc/edit";
 
@@ -21,6 +24,13 @@ const Library = () => {
     // Load data when component mounts
     loadSheetData();
   }, []);
+
+  // Initialize visible columns when data changes
+  useEffect(() => {
+    if (sheetData.length > 0 && visibleColumns.length === 0) {
+      setVisibleColumns(Object.keys(sheetData[0]));
+    }
+  }, [sheetData]);
 
   const loadSheetData = async () => {
     try {
@@ -88,6 +98,10 @@ const Library = () => {
               onSearchChange={setSearchTerm}
               onRefresh={handleRefresh}
               isLoading={isLoading}
+              data={sheetData}
+              columns={sheetData.length > 0 ? Object.keys(sheetData[0]) : []}
+              visibleColumns={visibleColumns}
+              onColumnVisibilityChange={setVisibleColumns}
             />
 
             {/* Data Table with Pagination and Sorting */}
@@ -96,6 +110,7 @@ const Library = () => {
                 isLoading={isLoading}
                 data={sheetData}
                 filteredData={filteredData}
+                visibleColumns={visibleColumns}
               />
             ) : (
               <div className="text-center py-12">

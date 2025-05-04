@@ -17,12 +17,14 @@ interface PaginatedDataTableProps {
   isLoading: boolean;
   data: any[];
   filteredData: any[];
+  visibleColumns?: string[];
 }
 
 const PaginatedDataTable: React.FC<PaginatedDataTableProps> = ({ 
   isLoading, 
   data, 
-  filteredData 
+  filteredData,
+  visibleColumns 
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [sortField, setSortField] = useState("");
@@ -144,7 +146,12 @@ const PaginatedDataTable: React.FC<PaginatedDataTableProps> = ({
   }
 
   const currentPageData = getCurrentPageData();
-  const headers = Object.keys(data[0] || {});
+  // Get all available headers
+  const allHeaders = Object.keys(data[0] || {});
+  // If visibleColumns is provided and has values, use it, otherwise show all columns
+  const headers = visibleColumns && visibleColumns.length > 0
+    ? allHeaders.filter(header => visibleColumns.includes(header))
+    : allHeaders;
 
   return (
     <>

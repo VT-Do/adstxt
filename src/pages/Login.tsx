@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { useSheetData } from "@/hooks/useSheetData";
 import SheetTabsList from "@/components/SheetTabsList";
 import SearchToolbar from "@/components/SearchToolbar";
@@ -20,6 +20,16 @@ const Login = () => {
     setSearchTerm,
     loadSheetData
   } = useSheetData(sheetUrl);
+  
+  // State for column visibility
+  const [visibleColumns, setVisibleColumns] = useState<string[]>([]);
+
+  // Initialize visible columns when data changes
+  React.useEffect(() => {
+    if (sheetData.length > 0 && visibleColumns.length === 0) {
+      setVisibleColumns(Object.keys(sheetData[0]));
+    }
+  }, [sheetData]);
 
   const handleRefresh = () => {
     if (selectedSheetTab) {
@@ -50,6 +60,10 @@ const Login = () => {
               onSearchChange={setSearchTerm}
               onRefresh={handleRefresh}
               isLoading={isLoading}
+              data={sheetData}
+              columns={sheetData.length > 0 ? Object.keys(sheetData[0]) : []}
+              visibleColumns={visibleColumns}
+              onColumnVisibilityChange={setVisibleColumns}
             />
 
             {/* Data Table with Pagination and Sorting */}
@@ -57,6 +71,7 @@ const Login = () => {
               isLoading={isLoading}
               data={sheetData}
               filteredData={filteredData}
+              visibleColumns={visibleColumns}
             />
           </div>
         </div>
