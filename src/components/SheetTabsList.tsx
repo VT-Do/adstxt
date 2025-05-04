@@ -1,6 +1,6 @@
 
 import React from "react";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 interface SheetTabsListProps {
   tabs: string[];
@@ -8,31 +8,27 @@ interface SheetTabsListProps {
   onSelectTab: (tab: string) => void;
 }
 
-const SheetTabsList: React.FC<SheetTabsListProps> = ({
-  tabs,
-  selectedTab,
-  onSelectTab,
+const SheetTabsList: React.FC<SheetTabsListProps> = ({ 
+  tabs, 
+  selectedTab, 
+  onSelectTab 
 }) => {
-  if (tabs.length === 0) {
-    return null;
-  }
-
   return (
-    <div className="w-full overflow-x-auto bg-white rounded-t-lg p-1">
-      <div className="flex min-w-max">
+    <div className="bg-white rounded-md overflow-auto">
+      <div className="flex">
         {tabs.map((tab) => (
-          <button
+          <Button
             key={tab}
+            variant={selectedTab === tab ? "default" : "ghost"}
+            className={`rounded-none px-6 py-2 h-12 ${
+              selectedTab === tab 
+                ? "bg-primary text-white" 
+                : "text-gray-700 hover:text-primary"
+            }`}
             onClick={() => onSelectTab(tab)}
-            className={cn(
-              "px-6 py-2 text-sm font-medium rounded-md transition-colors whitespace-nowrap",
-              selectedTab === tab
-                ? "bg-primary text-white"
-                : "bg-transparent text-gray-700 hover:bg-gray-100"
-            )}
           >
             {tab}
-          </button>
+          </Button>
         ))}
       </div>
     </div>
