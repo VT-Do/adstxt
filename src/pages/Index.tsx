@@ -25,7 +25,7 @@ const Index = () => {
             Ads.txt Management
           </h1>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-            View, filter, and visualize GS files
+            View, filter, and visualize ads.txt lines
             {profile?.role === 'admin' && (
               <span className="ml-2 text-primary font-medium">(Admin Access)</span>
             )}
