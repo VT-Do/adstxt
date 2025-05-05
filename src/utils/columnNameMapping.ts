@@ -64,3 +64,45 @@ export const getColumnType = (columnName: string): 'string' | 'number' | 'percen
   return columnTypes[columnName] || 'string';
 };
 
+/**
+ * Convert data to CSV format and trigger download
+ */
+export const downloadAsCSV = (data: any[], filename: string = 'table-data.csv', visibleColumns?: string[]): void => {
+  if (!data || data.length === 0) return;
+  
+  // Determine which columns to include in the CSV
+  const headers = visibleColumns && visibleColumns.length > 0 
+    ? visibleColumns 
+    : Object.keys(data[0]);
+  
+  // Create CSV header row with display names
+  const headerRow = headers.map(header => getDisplayName(header)).join(',');
+  
+  // Create CSV data rows
+  const csvRows = data.map(row => {
+    return headers.map(header => {
+      // Handle values that need quotes (contain commas, quotes, or newlines)
+      const value = row[header] !== null && row[header] !== undefined ? String(row[header]) : '';
+      if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+        return `"${value.replace(/"/g, '""')}"`;
+      }
+      return value;
+    }).join(',');
+  });
+  
+  // Combine headers and rows into final CSV
+  const csvContent = [headerRow, ...csvRows].join('\n');
+  
+  // Create and trigger download
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  
+  link.setAttribute('href', url);
+  link.setAttribute('download', filename);
+  link.style.visibility = 'hidden';
+  
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};

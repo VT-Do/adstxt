@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from "react";
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/components/ui/table";
-import { Loader2, ArrowUp, ArrowDown } from "lucide-react";
+import { Loader2, ArrowUp, ArrowDown, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Pagination,
@@ -16,7 +15,8 @@ import {
   getDisplayName, 
   getOriginalName, 
   parsePercentage,
-  getColumnType 
+  getColumnType,
+  downloadAsCSV 
 } from "@/utils/columnNameMapping";
 
 interface PaginatedDataTableProps {
@@ -145,6 +145,12 @@ const PaginatedDataTable: React.FC<PaginatedDataTableProps> = ({
     return pages;
   };
   
+  // Add a download handler function
+  const handleDownload = () => {
+    // Use filtered data for download but include only visible columns
+    downloadAsCSV(filteredData, 'table-data.csv', visibleColumns);
+  };
+  
   if (isLoading) {
     return (
       <div className="flex justify-center items-center py-12">
@@ -175,10 +181,23 @@ const PaginatedDataTable: React.FC<PaginatedDataTableProps> = ({
 
   return (
     <>
-      <div className="text-sm text-gray-500 p-4">
-        Showing {startRecord}-{endRecord} of {sortedData.length} records
-        {totalPages > 1 && ` • Page ${currentPage} of ${totalPages}`}
+      <div className="flex justify-between items-center p-4">
+        <div className="text-sm text-gray-500">
+          Showing {startRecord}-{endRecord} of {sortedData.length} records
+          {totalPages > 1 && ` • Page ${currentPage} of ${totalPages}`}
+        </div>
+        
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={handleDownload}
+          className="flex items-center gap-1"
+        >
+          <Download className="h-4 w-4" />
+          Export CSV
+        </Button>
       </div>
+      
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
