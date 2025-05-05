@@ -4,6 +4,7 @@ import { Loader2, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/components/ui/table";
 import { downloadAsCSV } from "@/utils/columnNameMapping";
+import { getDisplayName } from "@/utils/columnNameMapping";
 
 interface DataTableViewProps {
   isLoading: boolean;
@@ -61,7 +62,7 @@ const DataTableView: React.FC<DataTableViewProps> = ({
             <TableRow>
               {Object.keys(data[0]).map((header) => (
                 <TableHead key={header} className="font-medium">
-                  {header}
+                  {getDisplayName(header)}
                 </TableHead>
               ))}
             </TableRow>
@@ -84,4 +85,3 @@ const DataTableView: React.FC<DataTableViewProps> = ({
 };
 
 export default DataTableView;
-

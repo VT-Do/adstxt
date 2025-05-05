@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/card";
 import { Filter, Plus, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { getDisplayName } from "@/utils/columnNameMapping";
 
 interface FilterControlsProps {
   sheetData: any[];
@@ -69,7 +70,7 @@ const FilterControls: React.FC<FilterControlsProps> = ({ sheetData = [] }) => {
                   variant="secondary"
                   className="flex items-center gap-1"
                 >
-                  {filter.column} {filter.operator} {filter.value}
+                  {getDisplayName(filter.column)} {filter.operator} {filter.value}
                   <X 
                     className="h-3 w-3 ml-1 cursor-pointer" 
                     onClick={() => removeFilter(filter.id)}
@@ -125,7 +126,7 @@ const FilterControls: React.FC<FilterControlsProps> = ({ sheetData = [] }) => {
                       <SelectContent>
                         {columns.map(column => (
                           <SelectItem key={column} value={column}>
-                            {column}
+                            {getDisplayName(column)}
                           </SelectItem>
                         ))}
                       </SelectContent>

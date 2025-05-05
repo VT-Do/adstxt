@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { getDisplayName } from "@/utils/columnNameMapping";
 
 interface FilterPopoverProps {
   data: any[];
@@ -120,7 +121,7 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
                         <SelectContent>
                           {columns.map(column => (
                             <SelectItem key={column} value={column}>
-                              {column}
+                              {getDisplayName(column)}
                             </SelectItem>
                           ))}
                         </SelectContent>
