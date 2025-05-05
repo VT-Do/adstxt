@@ -42,7 +42,7 @@ const Login = () => {
       {/* Main Content */}
       <div className="container mx-auto px-4 py-6 flex-grow">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">Lines Data</h1>
+          <h1 className="text-4xl font-bold text-white mb-2">Ads.txt line Recommendation per Market</h1>
         </div>
 
         <div className="space-y-6">
