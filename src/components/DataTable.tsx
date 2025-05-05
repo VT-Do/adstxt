@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowUp, ArrowDown, Search, Download, Plus, Trash } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { transformSheetData } from "@/utils/sheetTransform";
+import { getDisplayName } from "@/utils/columnNameMapping";
 
 interface DataTableProps {
   data: any[];
@@ -233,7 +234,7 @@ const DataTable: React.FC<DataTableProps> = ({ data, isAdmin = false }) => {
                       onClick={() => handleSort(column)}
                       className="flex items-center gap-1 hover:bg-transparent px-2 py-1 h-auto"
                     >
-                      {column}
+                      {getDisplayName(column)}
                       {sortField === column ? (
                         sortDirection === "asc" ? (
                           <ArrowUp className="h-4 w-4" />

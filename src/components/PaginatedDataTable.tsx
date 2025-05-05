@@ -12,6 +12,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { getDisplayName, getOriginalName } from "@/utils/columnNameMapping";
 
 interface PaginatedDataTableProps {
   isLoading: boolean;
@@ -174,7 +175,7 @@ const PaginatedDataTable: React.FC<PaginatedDataTableProps> = ({
                     onClick={() => handleSort(header)}
                     className="flex items-center gap-1 h-auto p-0 hover:bg-transparent"
                   >
-                    {header}
+                    {getDisplayName(header)}
                     {sortField === header && (
                       sortDirection === "asc" ? (
                         <ArrowUp className="ml-1 h-4 w-4" />
