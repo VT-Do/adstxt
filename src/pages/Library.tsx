@@ -129,27 +129,27 @@ const Library = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Card className="bg-white/10 backdrop-blur-md border border-white/10">
               <div className="p-6">
-                <h3 className="text-xl font-medium text-white mb-2">Sheet Library</h3>
+                <h3 className="text-xl font-medium text-white mb-2">IAB ads.txt dataset</h3>
                 <p className="text-gray-300">
-                  Access your saved sheets and templates.
+                  Access the IBA datasets for more information.
                 </p>
               </div>
             </Card>
             
             <Card className="bg-white/10 backdrop-blur-md border border-white/10">
               <div className="p-6">
-                <h3 className="text-xl font-medium text-white mb-2">Recent Sheets</h3>
+                <h3 className="text-xl font-medium text-white mb-2">Ads.txt distributions</h3>
                 <p className="text-gray-300">
-                  Quick access to recently viewed sheets.
+                  Click here to see ads.txt distribution for active domains.
                 </p>
               </div>
             </Card>
             
             <Card className="bg-white/10 backdrop-blur-md border border-white/10">
               <div className="p-6">
-                <h3 className="text-xl font-medium text-white mb-2">Templates</h3>
+                <h3 className="text-xl font-medium text-white mb-2">SH sellers.json</h3>
                 <p className="text-gray-300">
-                  Pre-defined sheet templates to get started quickly.
+                  Click here to move to Showheroes sellers.json.
                 </p>
               </div>
             </Card>
