@@ -6,7 +6,7 @@
 // Column name mapping to display friendly names
 export const columnDisplayNames: Record<string, string> = {
   // Original column name -> Display name
-  "Primary_line": "Primary",
+  "Primary_Line": "Primary",
   "Priority_Weight": "Weight",
   "demand_partner": "SSP",
   "demand_market_division": "Division",
