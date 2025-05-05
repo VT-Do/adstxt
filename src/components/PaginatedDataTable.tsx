@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/components/ui/table";
-import { Loader2, ArrowUpDown } from "lucide-react";
+import { Loader2, ArrowUp, ArrowDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Pagination,
@@ -153,10 +153,14 @@ const PaginatedDataTable: React.FC<PaginatedDataTableProps> = ({
     ? allHeaders.filter(header => visibleColumns.includes(header))
     : allHeaders;
 
+  // Calculate the range of records being shown
+  const startRecord = Math.min((currentPage - 1) * rowsPerPage + 1, sortedData.length);
+  const endRecord = Math.min(currentPage * rowsPerPage, sortedData.length);
+
   return (
     <>
       <div className="text-sm text-gray-500 p-4">
-        Showing {Math.min(rowsPerPage, sortedData.length)} of {sortedData.length} records
+        Showing {startRecord}-{endRecord} of {sortedData.length} records
         {totalPages > 1 && ` • Page ${currentPage} of ${totalPages}`}
       </div>
       <div className="overflow-x-auto">
@@ -171,10 +175,16 @@ const PaginatedDataTable: React.FC<PaginatedDataTableProps> = ({
                     className="flex items-center gap-1 h-auto p-0 hover:bg-transparent"
                   >
                     {header}
-                    <ArrowUpDown 
-                      className={`ml-1 h-4 w-4 ${sortField === header ? 'opacity-100' : 'opacity-30'} 
-                                 ${sortField === header && sortDirection === "desc" ? "rotate-180" : ""}`}
-                    />
+                    {sortField === header && (
+                      sortDirection === "asc" ? (
+                        <ArrowUp className="ml-1 h-4 w-4" />
+                      ) : (
+                        <ArrowDown className="ml-1 h-4 w-4" />
+                      )
+                    )}
+                    {sortField !== header && (
+                      <span className="ml-1 h-4 w-4 opacity-0"></span>
+                    )}
                   </Button>
                 </TableHead>
               ))}

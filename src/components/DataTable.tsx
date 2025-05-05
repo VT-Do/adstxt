@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useEffect } from "react";
 import {
   Table,
@@ -19,7 +18,7 @@ import {
 } from "@/components/ui/pagination";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown, Search, Download, Plus, Trash } from "lucide-react";
+import { ArrowUp, ArrowDown, Search, Download, Plus, Trash } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { transformSheetData } from "@/utils/sheetTransform";
 
@@ -176,6 +175,10 @@ const DataTable: React.FC<DataTableProps> = ({ data, isAdmin = false }) => {
       </Card>
     );
   }
+  
+  // Calculate the range of records being shown
+  const startRecord = Math.min((page - 1) * pageSize + 1, sortedAndFilteredData.length);
+  const endRecord = Math.min(page * pageSize, sortedAndFilteredData.length);
 
   return (
     <Card>
@@ -216,6 +219,10 @@ const DataTable: React.FC<DataTableProps> = ({ data, isAdmin = false }) => {
       </CardHeader>
       <CardContent className="p-0">
         <div className="border rounded-md overflow-auto">
+          <div className="text-sm text-gray-500 p-4">
+            Showing {startRecord}-{endRecord} of {sortedAndFilteredData.length} records
+            {totalPages > 1 && ` • Page ${page} of ${totalPages}`}
+          </div>
           <Table>
             <TableHeader>
               <TableRow>
@@ -228,11 +235,13 @@ const DataTable: React.FC<DataTableProps> = ({ data, isAdmin = false }) => {
                     >
                       {column}
                       {sortField === column ? (
-                        <ArrowUpDown 
-                          className={`h-4 w-4 ${sortDirection === "asc" ? "rotate-0" : "rotate-180"}`}
-                        />
+                        sortDirection === "asc" ? (
+                          <ArrowUp className="h-4 w-4" />
+                        ) : (
+                          <ArrowDown className="h-4 w-4" />
+                        )
                       ) : (
-                        <ArrowUpDown className="h-4 w-4 opacity-30" />
+                        <span className="h-4 w-4 opacity-0"></span>
                       )}
                     </Button>
                   </TableHead>
