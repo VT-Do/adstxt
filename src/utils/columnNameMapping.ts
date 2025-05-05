@@ -13,6 +13,12 @@ export const columnDisplayNames: Record<string, string> = {
   // Add more mappings as needed
 };
 
+// Define column types for proper sorting
+export const columnTypes: Record<string, 'string' | 'number' | 'percentage'> = {
+  "Priority_Weight": "percentage",
+  // Add more type definitions as needed
+};
+
 /**
  * Gets the display name for a column, or returns the original name if no mapping exists
  */
@@ -34,3 +40,27 @@ export const getOriginalName = (displayName: string): string => {
 export const mapColumnsToDisplayNames = (columns: string[]): string[] => {
   return columns.map(col => getDisplayName(col));
 };
+
+/**
+ * Parse percentage strings to numbers for sorting
+ * Converts strings like "80%" to 80 as a number
+ */
+export const parsePercentage = (value: string | number): number => {
+  if (typeof value === 'number') return value;
+  
+  if (typeof value === 'string' && value.endsWith('%')) {
+    const numericValue = parseFloat(value.replace('%', ''));
+    return isNaN(numericValue) ? 0 : numericValue;
+  }
+  
+  const numericValue = parseFloat(String(value));
+  return isNaN(numericValue) ? 0 : numericValue;
+};
+
+/**
+ * Gets the column type
+ */
+export const getColumnType = (columnName: string): 'string' | 'number' | 'percentage' => {
+  return columnTypes[columnName] || 'string';
+};
+

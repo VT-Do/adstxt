@@ -12,7 +12,12 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { getDisplayName, getOriginalName } from "@/utils/columnNameMapping";
+import { 
+  getDisplayName, 
+  getOriginalName, 
+  parsePercentage,
+  getColumnType 
+} from "@/utils/columnNameMapping";
 
 interface PaginatedDataTableProps {
   isLoading: boolean;
@@ -44,21 +49,31 @@ const PaginatedDataTable: React.FC<PaginatedDataTableProps> = ({
         const aValue = a[sortField] ?? "";
         const bValue = b[sortField] ?? "";
         
-        // Handle numeric values
-        if (!isNaN(aValue) && !isNaN(bValue)) {
-          return sortDirection === "asc" 
-            ? Number(aValue) - Number(bValue)
-            : Number(bValue) - Number(aValue);
+        // Get column type for proper sorting
+        const columnType = getColumnType(sortField);
+        
+        // Handle different column types
+        if (columnType === "percentage") {
+          const aNum = parsePercentage(aValue);
+          const bNum = parsePercentage(bValue);
+          return sortDirection === "asc" ? aNum - bNum : bNum - aNum;
         }
-        
-        // Handle string values
-        const aString = String(aValue).toLowerCase();
-        const bString = String(bValue).toLowerCase();
-        
-        if (sortDirection === "asc") {
-          return aString.localeCompare(bString);
-        } else {
-          return bString.localeCompare(aString);
+        else if (columnType === "number" || (!isNaN(Number(aValue)) && !isNaN(Number(bValue)))) {
+          // Regular numeric sorting
+          const aNum = Number(aValue);
+          const bNum = Number(bValue);
+          return sortDirection === "asc" ? aNum - bNum : bNum - aNum;
+        } 
+        else {
+          // String sorting
+          const aString = String(aValue).toLowerCase();
+          const bString = String(bValue).toLowerCase();
+          
+          if (sortDirection === "asc") {
+            return aString.localeCompare(bString);
+          } else {
+            return bString.localeCompare(aString);
+          }
         }
       });
     }
@@ -155,7 +170,7 @@ const PaginatedDataTable: React.FC<PaginatedDataTableProps> = ({
     : allHeaders;
 
   // Calculate the range of records being shown
-  const startRecord = Math.min((currentPage - 1) * rowsPerPage + 1, sortedData.length);
+  const startRecord = (currentPage - 1) * rowsPerPage + 1;
   const endRecord = Math.min(currentPage * rowsPerPage, sortedData.length);
 
   return (
@@ -176,14 +191,13 @@ const PaginatedDataTable: React.FC<PaginatedDataTableProps> = ({
                     className="flex items-center gap-1 h-auto p-0 hover:bg-transparent"
                   >
                     {getDisplayName(header)}
-                    {sortField === header && (
+                    {sortField === header ? (
                       sortDirection === "asc" ? (
                         <ArrowUp className="ml-1 h-4 w-4" />
                       ) : (
                         <ArrowDown className="ml-1 h-4 w-4" />
                       )
-                    )}
-                    {sortField !== header && (
+                    ) : (
                       <span className="ml-1 h-4 w-4 opacity-0"></span>
                     )}
                   </Button>

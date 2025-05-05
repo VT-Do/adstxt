@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useEffect } from "react";
 import {
   Table,
@@ -21,7 +22,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowUp, ArrowDown, Search, Download, Plus, Trash } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { transformSheetData } from "@/utils/sheetTransform";
-import { getDisplayName } from "@/utils/columnNameMapping";
+import { getDisplayName, getColumnType, parsePercentage } from "@/utils/columnNameMapping";
 
 interface DataTableProps {
   data: any[];
@@ -98,9 +99,35 @@ const DataTable: React.FC<DataTableProps> = ({ data, isAdmin = false }) => {
     // Apply sorting if there's a sort field
     if (sortField) {
       processed.sort((a, b) => {
-        if (a[sortField] < b[sortField]) return sortDirection === "asc" ? -1 : 1;
-        if (a[sortField] > b[sortField]) return sortDirection === "asc" ? 1 : -1;
-        return 0;
+        const aValue = a[sortField] ?? "";
+        const bValue = b[sortField] ?? "";
+        
+        // Get column type for proper sorting
+        const columnType = getColumnType(sortField);
+        
+        // Handle different column types
+        if (columnType === "percentage") {
+          const aNum = parsePercentage(aValue);
+          const bNum = parsePercentage(bValue);
+          return sortDirection === "asc" ? aNum - bNum : bNum - aNum;
+        }
+        else if (columnType === "number" || (!isNaN(Number(aValue)) && !isNaN(Number(bValue)))) {
+          // Regular numeric sorting
+          const aNum = Number(aValue);
+          const bNum = Number(bValue);
+          return sortDirection === "asc" ? aNum - bNum : bNum - aNum;
+        } 
+        else {
+          // String sorting
+          const aString = String(aValue).toLowerCase();
+          const bString = String(bValue).toLowerCase();
+          
+          if (sortDirection === "asc") {
+            return aString.localeCompare(bString);
+          } else {
+            return bString.localeCompare(aString);
+          }
+        }
       });
     }
 
@@ -178,7 +205,7 @@ const DataTable: React.FC<DataTableProps> = ({ data, isAdmin = false }) => {
   }
   
   // Calculate the range of records being shown
-  const startRecord = Math.min((page - 1) * pageSize + 1, sortedAndFilteredData.length);
+  const startRecord = (page - 1) * pageSize + 1;
   const endRecord = Math.min(page * pageSize, sortedAndFilteredData.length);
 
   return (
