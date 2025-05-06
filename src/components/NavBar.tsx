@@ -36,7 +36,7 @@ const NavBar = () => {
                 variant={isActive("/library") ? "default" : "ghost"}
                 className="gap-2"
               >
-                <Library className="h-4 w-4" />
+                <Folder className="h-4 w-4" />
                 Library
               </Button>
             </Link>
