@@ -11,11 +11,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { getDisplayName } from "@/utils/columnNameMapping";
 import { 
-  Equal,
-  EqualNot, 
-  Contains, 
-  GreaterThan, 
-  LessThan,
+  EqualIcon,
+  Ban, 
+  Search, 
+  ChevronRight, 
+  ChevronLeft,
 } from "lucide-react";
 
 interface FilterPopoverProps {
@@ -27,11 +27,11 @@ interface FilterPopoverProps {
 
 // Define operators with their display values and icons
 const filterOperators = [
-  { value: "equals", label: "Equals", icon: <Equal className="h-4 w-4" /> },
-  { value: "not-equals", label: "Not equals", icon: <EqualNot className="h-4 w-4" /> },
-  { value: "contains", label: "Contains", icon: <Contains className="h-4 w-4" /> },
-  { value: "greater-than", label: "Greater than", icon: <GreaterThan className="h-4 w-4" /> },
-  { value: "less-than", label: "Less than", icon: <LessThan className="h-4 w-4" /> },
+  { value: "equals", label: "Equals", icon: <EqualIcon className="h-4 w-4" /> },
+  { value: "not-equals", label: "Not equals", icon: <Ban className="h-4 w-4" /> },
+  { value: "contains", label: "Contains", icon: <Search className="h-4 w-4" /> },
+  { value: "greater-than", label: "Greater than", icon: <ChevronRight className="h-4 w-4" /> },
+  { value: "less-than", label: "Less than", icon: <ChevronLeft className="h-4 w-4" /> },
 ];
 
 const FilterPopover: React.FC<FilterPopoverProps> = ({ 
