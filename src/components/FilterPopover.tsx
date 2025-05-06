@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   Select, 
   SelectContent, 
@@ -47,6 +47,13 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
 
   // Get unique column names from the data
   const columns = data.length > 0 ? Object.keys(data[0]) : [];
+  
+  // Set first column as default when data loads and no column is selected
+  useEffect(() => {
+    if (columns.length > 0 && !selectedColumn) {
+      setSelectedColumn(columns[0]);
+    }
+  }, [columns, selectedColumn]);
 
   const handleAddFilter = () => {
     if (selectedColumn && filterValue) {
@@ -67,7 +74,8 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
 
   const handleApplyFilters = () => {
     // Pass filters to parent component for processing
-    if (onApplyFilters && activeFilters.length > 0) {
+    if (onApplyFilters) {
+      console.log("Applying filters:", activeFilters);
       onApplyFilters(activeFilters);
     }
     setIsOpen(false);
@@ -81,6 +89,13 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
   const getOperatorLabel = (operator: string) => {
     const found = filterOperators.find(op => op.value === operator);
     return found ? found.label : operator;
+  };
+
+  // Handle Enter key press in the filter value input
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && selectedColumn && filterValue) {
+      handleAddFilter();
+    }
   };
 
   return (
@@ -146,6 +161,7 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
               className="flex-grow"
               value={filterValue}
               onChange={(e) => setFilterValue(e.target.value)}
+              onKeyDown={handleKeyDown}
             />
             <Button variant="outline" onClick={handleAddFilter} type="button">
               Add

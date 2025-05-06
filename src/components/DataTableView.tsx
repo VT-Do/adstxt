@@ -1,9 +1,7 @@
 
 import React from "react";
-import { Loader2, Download } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/components/ui/table";
-import { downloadAsCSV } from "@/utils/columnNameMapping";
 import { getDisplayName } from "@/utils/columnNameMapping";
 
 interface DataTableViewProps {
@@ -17,11 +15,6 @@ const DataTableView: React.FC<DataTableViewProps> = ({
   data, 
   filteredData 
 }) => {
-  // Add a download handler function
-  const handleDownload = () => {
-    downloadAsCSV(filteredData, 'table-data.csv');
-  };
-
   if (isLoading) {
     return (
       <div className="flex justify-center items-center py-12">
@@ -44,16 +37,6 @@ const DataTableView: React.FC<DataTableViewProps> = ({
         <div className="text-sm text-gray-500">
           Showing {filteredData.length} of {data.length} records
         </div>
-        
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={handleDownload}
-          className="flex items-center gap-1"
-        >
-          <Download className="h-4 w-4" />
-          Export CSV
-        </Button>
       </div>
       
       <div className="overflow-x-auto">

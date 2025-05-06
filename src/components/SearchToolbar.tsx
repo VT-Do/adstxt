@@ -103,29 +103,7 @@ const SearchToolbar: React.FC<SearchToolbarProps> = ({
       </div>
 
       <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-        {onRefresh && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onRefresh}
-            disabled={isLoading}
-          >
-            <RefreshCcw
-              className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`}
-            />
-            Refresh
-          </Button>
-        )}
-
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleDownloadCSV}
-        >
-          <Download className="h-4 w-4 mr-2" />
-          Download
-        </Button>
-
+        {/* Reordered buttons as requested: Filters, Columns, Download, Refresh */}
         <Popover open={filterPopoverOpen} onOpenChange={setFilterPopoverOpen}>
           <PopoverTrigger asChild>
             <Button variant="outline" size="sm">
@@ -150,7 +128,7 @@ const SearchToolbar: React.FC<SearchToolbarProps> = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuLabel>Toggle Columns</DropdownMenuLabel>
+            <DropdownMenuLabel>Columns</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <div className="p-2">
               <div className="mb-2 flex items-center">
@@ -186,6 +164,29 @@ const SearchToolbar: React.FC<SearchToolbarProps> = ({
             </div>
           </DropdownMenuContent>
         </DropdownMenu>
+
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleDownloadCSV}
+        >
+          <Download className="h-4 w-4 mr-2" />
+          Download
+        </Button>
+
+        {onRefresh && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onRefresh}
+            disabled={isLoading}
+          >
+            <RefreshCcw
+              className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`}
+            />
+            Refresh
+          </Button>
+        )}
       </div>
     </div>
   );
