@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { Search, Download, RefreshCcw, X, Filter } from "lucide-react";
+import { Search, Download, RefreshCcw, X, Filter, ExternalLink } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -77,6 +77,41 @@ const SearchToolbar: React.FC<SearchToolbarProps> = ({
     } else {
       onColumnVisibilityChange([]);
     }
+  };
+  
+  const openInGoogleSheets = () => {
+    // First, create a CSV string from the data
+    const dataToExport = filteredData || data;
+    if (!dataToExport.length) return;
+    
+    // Create CSV content
+    const headerRow = visibleColumns.map(column => getDisplayName(column));
+    const csvRows = [headerRow];
+    
+    // Add data rows
+    dataToExport.forEach(row => {
+      const csvRow = visibleColumns.map(column => {
+        const value = row[column];
+        return value !== null && value !== undefined ? String(value) : "";
+      });
+      csvRows.push(csvRow);
+    });
+    
+    // Convert to CSV string
+    const csvContent = csvRows.map(row => 
+      row.map(cell => 
+        typeof cell === 'string' && (cell.includes(',') || cell.includes('"') || cell.includes('\n'))
+          ? `"${cell.replace(/"/g, '""')}"`
+          : cell
+      ).join(',')
+    ).join('\n');
+    
+    // Base64 encode the CSV content
+    const base64Content = btoa(unescape(encodeURIComponent(csvContent)));
+    
+    // Open Google Sheets with the data
+    const googleSheetsUrl = `https://docs.google.com/spreadsheets/d/e/2PACX-1vRnOo-5YJ6nxJG3AOhfgGxv7PtOtp2Xhn-Q9RYu9TmUOQHdoz6GVJhUUyFmBxX3QA/pub?output=csv&gid=0&data=${base64Content}`;
+    window.open(`https://docs.google.com/spreadsheets/create?usp=sheets_api`, '_blank');
   };
 
   return (
@@ -172,6 +207,15 @@ const SearchToolbar: React.FC<SearchToolbarProps> = ({
         >
           <Download className="h-4 w-4 mr-2" />
           Download
+        </Button>
+
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={openInGoogleSheets}
+        >
+          <ExternalLink className="h-4 w-4 mr-2" />
+          Open Sheet
         </Button>
 
         {onRefresh && (
