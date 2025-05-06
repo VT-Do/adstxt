@@ -40,6 +40,15 @@ const NavBar = () => {
                 Library
               </Button>
             </Link>
+            <Link to="/my-library">
+              <Button 
+                variant={isActive("/my-library") ? "default" : "ghost"}
+                className="gap-2"
+              >
+                <Book className="h-4 w-4" />
+                SH Sellers.json
+              </Button>
+            </Link>  
             <Link to="/contact">
               <Button 
                 variant={isActive("/contact") ? "default" : "ghost"} 
