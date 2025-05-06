@@ -1,32 +1,35 @@
 
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Search, Download, RefreshCcw, X, Filter } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { 
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
   Popover,
   PopoverContent,
-  PopoverTrigger
+  PopoverTrigger,
 } from "@/components/ui/popover";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuCheckboxItem, 
-  DropdownMenuTrigger 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Search, RefreshCw, Loader2, Filter, Columns } from "lucide-react";
 import FilterPopover from "@/components/FilterPopover";
-import { Checkbox } from "@/components/ui/checkbox";
-import { getDisplayName } from "@/utils/columnNameMapping";
+import { downloadAsCSV, getDisplayName } from "@/utils/columnNameMapping";
 
 interface SearchToolbarProps {
   searchTerm: string;
-  onSearchChange: (value: string) => void;
-  onRefresh: () => void;
-  isLoading: boolean;
+  onSearchChange: (term: string) => void;
+  onRefresh?: () => void;
+  isLoading?: boolean;
   data: any[];
-  columns?: string[];
-  visibleColumns?: string[];
-  onColumnVisibilityChange?: (columns: string[]) => void;
+  columns: string[];
+  visibleColumns: string[];
+  onColumnVisibilityChange: (columns: string[]) => void;
+  filteredData?: any[];
+  onApplyFilters?: (filters: Array<{column: string, operator: string, value: string}>) => void;
 }
 
 const SearchToolbar: React.FC<SearchToolbarProps> = ({
@@ -34,136 +37,155 @@ const SearchToolbar: React.FC<SearchToolbarProps> = ({
   onSearchChange,
   onRefresh,
   isLoading,
-  data = [],
-  columns = [],
-  visibleColumns = [],
-  onColumnVisibilityChange = () => {},
+  data,
+  columns,
+  visibleColumns,
+  onColumnVisibilityChange,
+  filteredData,
+  onApplyFilters
 }) => {
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filterPopoverOpen, setFilterPopoverOpen] = useState(false);
+  const [columnToggleOpen, setColumnToggleOpen] = useState(false);
 
-  // Extract column names from the first data item if not provided
-  const tableColumns = columns.length > 0 
-    ? columns 
-    : data.length > 0 
-      ? Object.keys(data[0]) 
-      : [];
-      
-  // Create a grid of columns for the two-column layout
-  const leftColumns = tableColumns.filter((_, index) => index % 2 === 0);
-  const rightColumns = tableColumns.filter((_, index) => index % 2 === 1);
+  const handleClearSearch = () => {
+    onSearchChange("");
+  };
+
+  const handleDownloadCSV = () => {
+    // Use the filtered data if available, otherwise use all data
+    const dataToDownload = filteredData || data;
+    downloadAsCSV(dataToDownload, "table-data.csv", visibleColumns);
+  };
+
+  const handleColumnToggle = (column: string, isChecked: boolean) => {
+    if (isChecked) {
+      onColumnVisibilityChange([...visibleColumns, column]);
+    } else {
+      onColumnVisibilityChange(visibleColumns.filter((col) => col !== column));
+    }
+  };
+
+  const handleFilterApply = (filters: Array<{column: string, operator: string, value: string}>) => {
+    if (onApplyFilters) {
+      onApplyFilters(filters);
+    }
+  };
+
+  const toggleAllColumns = (checked: boolean) => {
+    if (checked) {
+      onColumnVisibilityChange([...columns]);
+    } else {
+      onColumnVisibilityChange([]);
+    }
+  };
 
   return (
-    <div className="p-4 flex flex-wrap justify-between items-center gap-3 border-b">
-      <div className="relative w-full max-w-xs">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+    <div className="flex flex-col sm:flex-row justify-between items-center p-4 border-b gap-3">
+      <div className="relative w-full sm:w-auto sm:flex-1 max-w-md">
+        <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Search data..."
-          className="pl-10 border-gray-300"
+          placeholder="Search..."
           value={searchTerm}
           onChange={(e) => onSearchChange(e.target.value)}
+          className="pl-8 pr-10"
         />
+        {searchTerm && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="absolute right-0 top-0 h-full px-2 py-0"
+            onClick={handleClearSearch}
+          >
+            <X className="h-4 w-4" />
+            <span className="sr-only">Clear</span>
+          </Button>
+        )}
       </div>
 
-      <div className="flex gap-2">
-        {/* Filter Button with Popover */}
-        <Popover open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+      <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+        {onRefresh && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onRefresh}
+            disabled={isLoading}
+          >
+            <RefreshCcw
+              className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`}
+            />
+            Refresh
+          </Button>
+        )}
+
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleDownloadCSV}
+        >
+          <Download className="h-4 w-4 mr-2" />
+          Download
+        </Button>
+
+        <Popover open={filterPopoverOpen} onOpenChange={setFilterPopoverOpen}>
           <PopoverTrigger asChild>
-            <Button variant="outline" size="sm" className="flex items-center gap-2">
-              <Filter className="h-4 w-4" />
-              <span className="hidden sm:inline">Filters</span>
+            <Button variant="outline" size="sm">
+              <Filter className="h-4 w-4 mr-2" />
+              Filters
             </Button>
           </PopoverTrigger>
-          <PopoverContent align="end" className="w-80 p-4">
+          <PopoverContent className="w-80" align="end">
             <FilterPopover 
-              data={data}
-              isOpen={isFilterOpen}
-              setIsOpen={setIsFilterOpen} 
+              data={data} 
+              isOpen={filterPopoverOpen} 
+              setIsOpen={setFilterPopoverOpen}
+              onApplyFilters={handleFilterApply}
             />
           </PopoverContent>
         </Popover>
 
-        {/* Column Visibility Toggle with Popover for better UX */}
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="outline" size="sm" className="flex items-center gap-2">
-              <Columns className="h-4 w-4" />
-              <span className="hidden sm:inline">Columns</span>
+        <DropdownMenu open={columnToggleOpen} onOpenChange={setColumnToggleOpen}>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm">
+              Columns
             </Button>
-          </PopoverTrigger>
-          <PopoverContent align="end" className="w-80 p-4">
-            <div>
-              <h3 className="font-medium mb-3 text-base">Toggle Columns</h3>
-              <div className="grid grid-cols-2 gap-x-6 gap-y-3">
-                <div className="space-y-3">
-                  {leftColumns.map((column) => (
-                    <div key={column} className="flex items-center space-x-2">
-                      <Checkbox 
-                        id={`column-${column}`}
-                        checked={visibleColumns.includes(column)}
-                        onCheckedChange={(checked) => {
-                          if (checked) {
-                            onColumnVisibilityChange([...visibleColumns, column]);
-                          } else {
-                            onColumnVisibilityChange(
-                              visibleColumns.filter((col) => col !== column)
-                            );
-                          }
-                        }}
-                      />
-                      <label 
-                        htmlFor={`column-${column}`}
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        {getDisplayName(column)}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-                <div className="space-y-3">
-                  {rightColumns.map((column) => (
-                    <div key={column} className="flex items-center space-x-2">
-                      <Checkbox 
-                        id={`column-${column}`}
-                        checked={visibleColumns.includes(column)}
-                        onCheckedChange={(checked) => {
-                          if (checked) {
-                            onColumnVisibilityChange([...visibleColumns, column]);
-                          } else {
-                            onColumnVisibilityChange(
-                              visibleColumns.filter((col) => col !== column)
-                            );
-                          }
-                        }}
-                      />
-                      <label 
-                        htmlFor={`column-${column}`}
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        {getDisplayName(column)}
-                      </label>
-                    </div>
-                  ))}
-                </div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuLabel>Toggle Columns</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <div className="p-2">
+              <div className="mb-2 flex items-center">
+                <Checkbox 
+                  id="toggle-all-columns" 
+                  checked={visibleColumns.length === columns.length} 
+                  onCheckedChange={(checked) => toggleAllColumns(!!checked)}
+                  className="mr-2"
+                />
+                <label htmlFor="toggle-all-columns" className="text-sm cursor-pointer">
+                  Toggle All
+                </label>
+              </div>
+              <div className="max-h-60 overflow-y-auto grid grid-cols-2 gap-1">
+                {columns.map((column) => (
+                  <div key={column} className="flex items-center">
+                    <Checkbox
+                      id={`column-${column}`}
+                      checked={visibleColumns.includes(column)}
+                      onCheckedChange={(checked) => handleColumnToggle(column, !!checked)}
+                      className="mr-2"
+                    />
+                    <label 
+                      htmlFor={`column-${column}`}
+                      className="text-sm cursor-pointer truncate"
+                      title={getDisplayName(column)}
+                    >
+                      {getDisplayName(column)}
+                    </label>
+                  </div>
+                ))}
               </div>
             </div>
-          </PopoverContent>
-        </Popover>
-
-        {/* Refresh Button */}
-        <Button
-          onClick={onRefresh}
-          disabled={isLoading}
-          variant="outline"
-          size="sm"
-          className="flex items-center gap-2"
-        >
-          {isLoading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <RefreshCw className="h-4 w-4" />
-          )}
-          <span className="hidden sm:inline">Refresh Data</span>
-        </Button>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );

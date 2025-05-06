@@ -16,9 +16,11 @@ const Login = () => {
     isLoading,
     searchTerm,
     filteredData,
+    activeFilters,
     setSelectedSheetTab,
     setSearchTerm,
-    loadSheetData
+    loadSheetData,
+    handleApplyFilters
   } = useSheetData(sheetUrl);
   
   // State for column visibility
@@ -64,6 +66,8 @@ const Login = () => {
               columns={sheetData.length > 0 ? Object.keys(sheetData[0]) : []}
               visibleColumns={visibleColumns}
               onColumnVisibilityChange={setVisibleColumns}
+              filteredData={filteredData}
+              onApplyFilters={handleApplyFilters}
             />
 
             {/* Data Table with Pagination and Sorting */}

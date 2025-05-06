@@ -10,29 +10,51 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { getDisplayName } from "@/utils/columnNameMapping";
+import { 
+  Equal,
+  EqualNot, 
+  Contains, 
+  GreaterThan, 
+  LessThan,
+} from "lucide-react";
 
 interface FilterPopoverProps {
   data: any[];
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
+  onApplyFilters?: (filters: Array<{column: string, operator: string, value: string}>) => void;
 }
+
+// Define operators with their display values and icons
+const filterOperators = [
+  { value: "equals", label: "Equals", icon: <Equal className="h-4 w-4" /> },
+  { value: "not-equals", label: "Not equals", icon: <EqualNot className="h-4 w-4" /> },
+  { value: "contains", label: "Contains", icon: <Contains className="h-4 w-4" /> },
+  { value: "greater-than", label: "Greater than", icon: <GreaterThan className="h-4 w-4" /> },
+  { value: "less-than", label: "Less than", icon: <LessThan className="h-4 w-4" /> },
+];
 
 const FilterPopover: React.FC<FilterPopoverProps> = ({ 
   data, 
   isOpen, 
-  setIsOpen 
+  setIsOpen,
+  onApplyFilters 
 }) => {
   const [selectedColumn, setSelectedColumn] = useState<string>("");
+  const [selectedOperator, setSelectedOperator] = useState<string>("equals");
   const [filterValue, setFilterValue] = useState<string>("");
-  const [activeFilters, setActiveFilters] = useState<{column: string, value: string}[]>([]);
+  const [activeFilters, setActiveFilters] = useState<{column: string, operator: string, value: string}[]>([]);
 
   // Get unique column names from the data
   const columns = data.length > 0 ? Object.keys(data[0]) : [];
 
   const handleAddFilter = () => {
     if (selectedColumn && filterValue) {
-      setActiveFilters([...activeFilters, { column: selectedColumn, value: filterValue }]);
-      setSelectedColumn("");
+      setActiveFilters([...activeFilters, { 
+        column: selectedColumn, 
+        operator: selectedOperator, 
+        value: filterValue 
+      }]);
       setFilterValue("");
     }
   };
@@ -44,45 +66,84 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
   };
 
   const handleApplyFilters = () => {
-    // Apply filters to data (this would be implemented in the parent component)
+    // Pass filters to parent component for processing
+    if (onApplyFilters && activeFilters.length > 0) {
+      onApplyFilters(activeFilters);
+    }
     setIsOpen(false);
+  };
+
+  const getOperatorIcon = (operator: string) => {
+    const found = filterOperators.find(op => op.value === operator);
+    return found ? found.icon : null;
+  };
+
+  const getOperatorLabel = (operator: string) => {
+    const found = filterOperators.find(op => op.value === operator);
+    return found ? found.label : operator;
   };
 
   return (
     <div className="space-y-4">
       <h3 className="font-medium">Filter Data</h3>
       
-      <div className="flex flex-col gap-2">
-        <div className="flex flex-col gap-2">
-          <label htmlFor="column-select" className="text-sm font-medium">
-            Select Column
-          </label>
-          <Select
-            value={selectedColumn}
-            onValueChange={setSelectedColumn}
-          >
-            <SelectTrigger id="column-select" className="w-full">
-              <SelectValue placeholder="Select column" />
-            </SelectTrigger>
-            <SelectContent>
-              {columns.map((column) => (
-                <SelectItem key={column} value={column}>
-                  {getDisplayName(column)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+      <div className="flex flex-col gap-3">
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <label htmlFor="column-select" className="text-sm font-medium block mb-1">
+              Select Column
+            </label>
+            <Select
+              value={selectedColumn}
+              onValueChange={setSelectedColumn}
+            >
+              <SelectTrigger id="column-select" className="w-full">
+                <SelectValue placeholder="Select column" />
+              </SelectTrigger>
+              <SelectContent>
+                {columns.map((column) => (
+                  <SelectItem key={column} value={column}>
+                    {getDisplayName(column)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <label htmlFor="operator-select" className="text-sm font-medium block mb-1">
+              Operator
+            </label>
+            <Select
+              value={selectedOperator}
+              onValueChange={setSelectedOperator}
+            >
+              <SelectTrigger id="operator-select" className="w-full">
+                <SelectValue placeholder="Select operator" />
+              </SelectTrigger>
+              <SelectContent>
+                {filterOperators.map((operator) => (
+                  <SelectItem key={operator.value} value={operator.value}>
+                    <div className="flex items-center gap-2">
+                      {operator.icon}
+                      <span>{operator.label}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
-        <div className="flex flex-col gap-2">
-          <label htmlFor="filter-value" className="text-sm font-medium">
+        <div>
+          <label htmlFor="filter-value" className="text-sm font-medium block mb-1">
             Filter Value
           </label>
           <div className="flex gap-2">
             <Input
               id="filter-value"
               placeholder="Enter value"
-              className="w-full"
+              className="flex-grow"
               value={filterValue}
               onChange={(e) => setFilterValue(e.target.value)}
             />
@@ -96,12 +157,17 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
       {activeFilters.length > 0 && (
         <div className="space-y-2">
           <h4 className="text-sm font-medium">Active Filters</h4>
-          <div className="space-y-2">
+          <div className="space-y-2 max-h-48 overflow-y-auto">
             {activeFilters.map((filter, index) => (
               <div key={index} className="flex items-center gap-2 bg-gray-100 p-2 rounded">
-                <span className="text-sm">
-                  {getDisplayName(filter.column)}: {filter.value}
-                </span>
+                <div className="flex-1 text-sm">
+                  <span className="font-medium">{getDisplayName(filter.column)}</span>
+                  <span className="mx-1 flex items-center gap-1 inline-flex">
+                    {getOperatorIcon(filter.operator)}
+                    <span className="text-xs">{getOperatorLabel(filter.operator)}</span>
+                  </span>
+                  <span className="font-medium">"{filter.value}"</span>
+                </div>
                 <Button
                   variant="ghost"
                   size="sm"
