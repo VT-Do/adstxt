@@ -25,6 +25,7 @@ const AppRoutes = () => (
         <Route path="/register" element={<Register />} />
         <Route path="/library" element={<Library />} />
         <Route path="/library" element={<Library />} />
+        <Route path="/my-library" element={<Library />} />
         <Route path="/contact" element={<Contact />} />
         
         <Route path="/" element={
