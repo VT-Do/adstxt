@@ -7,7 +7,7 @@
 export const columnDisplayNames: Record<string, string> = {
   // Original column name -> Display name
   "Primary_Line": "Primary",
-  "Primary_weight": "Priority",
+  "Primary_Weight": "Priority",
   "demand_partner": "SSP",
   "demand_market_division": "Division",
   // Add more mappings as needed
