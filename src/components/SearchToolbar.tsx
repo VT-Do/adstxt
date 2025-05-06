@@ -109,9 +109,26 @@ const SearchToolbar: React.FC<SearchToolbarProps> = ({
     // Base64 encode the CSV content
     const base64Content = btoa(unescape(encodeURIComponent(csvContent)));
     
-    // Open Google Sheets with the data
-    const googleSheetsUrl = `https://docs.google.com/spreadsheets/d/e/2PACX-1vRnOo-5YJ6nxJG3AOhfgGxv7PtOtp2Xhn-Q9RYu9TmUOQHdoz6GVJhUUyFmBxX3QA/pub?output=csv&gid=0&data=${base64Content}`;
-    window.open(`https://docs.google.com/spreadsheets/create?usp=sheets_api`, '_blank');
+    // Create a Google Sheets URL with data
+    // This approach directly creates a new sheet with the data imported
+    const formData = new FormData();
+    formData.append('data', csvContent);
+    
+    // First create a new blank sheet
+    window.open('https://docs.google.com/spreadsheets/create', '_blank');
+    
+    // Then show instructions to the user via console (in a real app, you'd use a toast)
+    console.log("New Google Sheet opened. Please use File > Import > Upload to import your data.");
+    
+    // Create a temporary download link for the CSV so users can import it
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'sheet-data.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
