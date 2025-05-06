@@ -2,7 +2,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { FileText, Book, Mail, Home, LogOut } from "lucide-react";
+import { FileText, Library, Book, Mail, Home, LogOut } from "lucide-react";
 
 const NavBar = () => {
   const location = useLocation();
@@ -36,7 +36,7 @@ const NavBar = () => {
                 variant={isActive("/library") ? "default" : "ghost"}
                 className="gap-2"
               >
-                <Mail className="h-4 w-4" />
+                <Library className="h-4 w-4" />
                 Library
               </Button>
             </Link>
