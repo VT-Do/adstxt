@@ -3,6 +3,7 @@
  * This file contains utilities for mapping column names to more user-friendly display names
  */
 
+/*
 // Column name mapping to display friendly names
 export const columnDisplayNames: Record<string, string> = {
   // Original column name -> Display name
@@ -12,6 +13,7 @@ export const columnDisplayNames: Record<string, string> = {
   "demand_market_division": "Division",
   // Add more mappings as needed
 };
+*/
 
 // Define column types for proper sorting
 export const columnTypes: Record<string, 'string' | 'number' | 'percentage'> = {
