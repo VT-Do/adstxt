@@ -187,12 +187,12 @@ const PaginatedDataTable: React.FC<PaginatedDataTableProps> = ({
           {totalPages > 1 && ` • Page ${currentPage} of ${totalPages}`}
         </div>
         
-        <Button 
+        /*<Button 
           variant="outline" 
           size="sm" 
           onClick={handleDownload}
           className="flex items-center gap-1"
-        >
+        >/*
           <Download className="h-4 w-4" />
           Export CSV
         </Button>
