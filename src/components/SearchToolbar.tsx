@@ -80,9 +80,9 @@ const SearchToolbar: React.FC<SearchToolbarProps> = ({
   };
   
   const openInGoogleSheets = () => {
-    // Open the original Google Sheet with Market Lines tab
-    const originalSheetUrl = "https://docs.google.com/spreadsheets/d/1o14-srgPH-3-_kFfQSXUvse9Yz-PQaHxKTbVdkroxHc/edit#gid=1023604580";
-    window.open(originalSheetUrl, '_blank');
+    // URL for Market Lines tab specifically
+    const marketLinesSheetUrl = "https://docs.google.com/spreadsheets/d/1IebVuhDeUO71KruSIzcoRwabpDPGrG83RekXjpFyjUY/edit#gid=0";
+    window.open(marketLinesSheetUrl, '_blank');
     
     // Display a toast notification about opening the original sheet
     const toast = document.createElement('div');
@@ -131,7 +131,7 @@ const SearchToolbar: React.FC<SearchToolbarProps> = ({
       </div>
 
       <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-        {/* Reordered buttons as requested: Filters, Columns, Download, Refresh */}
+        {/* Reordered buttons: Filters, Columns, Download, Open Sheet */}
         <Popover open={filterPopoverOpen} onOpenChange={setFilterPopoverOpen}>
           <PopoverTrigger asChild>
             <Button variant="outline" size="sm">
