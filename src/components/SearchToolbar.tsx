@@ -80,48 +80,11 @@ const SearchToolbar: React.FC<SearchToolbarProps> = ({
   };
   
   const openInGoogleSheets = () => {
-    // Get the filtered data to export
-    const dataToExport = filteredData || data;
-    if (!dataToExport.length) return;
+    // Open the original Google Sheet with Market Lines tab
+    const originalSheetUrl = "https://docs.google.com/spreadsheets/d/1o14-srgPH-3-_kFfQSXUvse9Yz-PQaHxKTbVdkroxHc/edit#gid=1023604580";
+    window.open(originalSheetUrl, '_blank');
     
-    // Create CSV content
-    const headerRow = visibleColumns.map(column => getDisplayName(column));
-    const csvRows = [headerRow];
-    
-    // Add data rows
-    dataToExport.forEach(row => {
-      const csvRow = visibleColumns.map(column => {
-        const value = row[column];
-        return value !== null && value !== undefined ? String(value) : "";
-      });
-      csvRows.push(csvRow);
-    });
-    
-    // Convert to CSV string
-    const csvContent = csvRows.map(row => 
-      row.map(cell => 
-        typeof cell === 'string' && (cell.includes(',') || cell.includes('"') || cell.includes('\n'))
-          ? `"${cell.replace(/"/g, '""')}"`
-          : cell
-      ).join(',')
-    ).join('\n');
-    
-    // Create a blob and generate an object URL
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    
-    // Create a link to trigger the download
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', 'data-for-sheets.csv');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    // Open Google Sheets in a new tab with instructions
-    window.open('https://docs.google.com/spreadsheets/u/0/create?usp=direct_url', '_blank');
-    
-    // Display import instructions using toast notification
+    // Display a toast notification about opening the original sheet
     const toast = document.createElement('div');
     toast.style.position = 'fixed';
     toast.style.bottom = '20px';
@@ -133,16 +96,15 @@ const SearchToolbar: React.FC<SearchToolbarProps> = ({
     toast.style.zIndex = '1000';
     toast.innerHTML = `
       <div>
-        <p><strong>CSV file downloaded!</strong></p>
-        <p>In Google Sheets: Click File > Import > Upload > Select the downloaded file</p>
+        <p><strong>Opening Market Lines tab in original Google Sheet</strong></p>
       </div>
     `;
     document.body.appendChild(toast);
     
-    // Remove the toast after 10 seconds
+    // Remove the toast after 5 seconds
     setTimeout(() => {
       document.body.removeChild(toast);
-    }, 10000);
+    }, 5000);
   };
 
   return (
