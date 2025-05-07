@@ -8,6 +8,8 @@ import PaginatedDataTable from "@/components/PaginatedDataTable";
 const Login = () => {
   // Google Sheet URL from the user's request
   const sheetUrl = "https://docs.google.com/spreadsheets/d/1z2NQ13FS_eVrgRd-b49_tsGKtemXpi1v/edit?gid=916740284#gid=916740284";
+  // Google Sheet URL for the Open Sheet button
+  const openSheetUrl = "https://docs.google.com/spreadsheets/d/1z2NQ13FS_eVrgRd-b49_tsGKtemXpi1v/";
   
   const {
     sheetData,
@@ -68,6 +70,7 @@ const Login = () => {
               onColumnVisibilityChange={setVisibleColumns}
               filteredData={filteredData}
               onApplyFilters={handleApplyFilters}
+              sheetUrl={openSheetUrl} // Pass the correct URL for Market Lines
             />
 
             {/* Data Table with Pagination and Sorting */}

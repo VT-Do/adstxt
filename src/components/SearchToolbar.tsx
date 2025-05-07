@@ -30,6 +30,7 @@ interface SearchToolbarProps {
   onColumnVisibilityChange: (columns: string[]) => void;
   filteredData?: any[];
   onApplyFilters?: (filters: Array<{column: string, operator: string, value: string}>) => void;
+  sheetUrl?: string; // Added sheetUrl prop to specify which URL to open
 }
 
 const SearchToolbar: React.FC<SearchToolbarProps> = ({
@@ -42,7 +43,8 @@ const SearchToolbar: React.FC<SearchToolbarProps> = ({
   visibleColumns,
   onColumnVisibilityChange,
   filteredData,
-  onApplyFilters
+  onApplyFilters,
+  sheetUrl
 }) => {
   const [filterPopoverOpen, setFilterPopoverOpen] = useState(false);
   const [columnToggleOpen, setColumnToggleOpen] = useState(false);
@@ -80,9 +82,9 @@ const SearchToolbar: React.FC<SearchToolbarProps> = ({
   };
   
   const openInGoogleSheets = () => {
-    // URL for Market Lines tab specifically
-    const marketLinesSheetUrl = "https://docs.google.com/spreadsheets/d/1z2NQ13FS_eVrgRd-b49_tsGKtemXpi1v/";
-    window.open(marketLinesSheetUrl, '_blank');
+    // Use the provided sheetUrl or default if not provided
+    const sheetToOpen = sheetUrl || "https://docs.google.com/spreadsheets/d/1z2NQ13FS_eVrgRd-b49_tsGKtemXpi1v/";
+    window.open(sheetToOpen, '_blank');
     
     // Display a toast notification about opening the original sheet
     const toast = document.createElement('div');
@@ -96,7 +98,7 @@ const SearchToolbar: React.FC<SearchToolbarProps> = ({
     toast.style.zIndex = '1000';
     toast.innerHTML = `
       <div>
-        <p><strong>Opening Market Lines tab in original Google Sheet</strong></p>
+        <p><strong>Opening original Google Sheet</strong></p>
       </div>
     `;
     document.body.appendChild(toast);

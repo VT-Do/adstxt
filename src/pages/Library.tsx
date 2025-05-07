@@ -20,6 +20,9 @@ const Library = () => {
   
   // Predefined Google Sheet URL - hardcoded but not shown to user
   const sheetUrl = "https://docs.google.com/spreadsheets/d/1o14-srgPH-3-_kFfQSXUvse9Yz-PQaHxKTbVdkroxHc/edit";
+  
+  // URL for the Open Sheet button - explicitly for Library tab
+  const openSheetUrl = "https://docs.google.com/spreadsheets/d/1o14-srgPH-3-_kFfQSXUvse9Yz-PQaHxKTbVdkroxHc/";
 
   useEffect(() => {
     // Load data when component mounts
@@ -139,6 +142,7 @@ const Library = () => {
               onColumnVisibilityChange={setVisibleColumns}
               filteredData={filteredData}
               onApplyFilters={handleApplyFilters}
+              sheetUrl={openSheetUrl} // Pass the correct URL for Library
             />
 
             {/* Data Table with Pagination and Sorting */}
