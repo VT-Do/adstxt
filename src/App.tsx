@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -10,6 +11,7 @@ import Library from "./pages/Library";
 import Contact from "./pages/Contact";
 import AdminPanel from "./pages/AdminPanel";
 import NotFound from "./pages/NotFound";
+import SellersJson from "./pages/SellersJson";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NavBar from "./components/NavBar";
@@ -25,6 +27,7 @@ const AppRoutes = () => (
         <Route path="/register" element={<Register />} />
         <Route path="/library" element={<Library />} />
         <Route path="/my-library" element={<Library />} />
+        <Route path="/sellers-json" element={<SellersJson />} />
         <Route path="/contact" element={<Contact />} />
         
         <Route path="/" element={

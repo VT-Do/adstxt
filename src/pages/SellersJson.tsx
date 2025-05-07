@@ -1,71 +1,79 @@
 
 import React, { useState, useEffect } from "react";
-import { Card } from "@/components/ui/card";
-import { fetchPublicSheetData, parseSheetId } from "@/utils/googleApi";
-import { transformSheetData } from "@/utils/sheetTransform";
 import { useToast } from "@/components/ui/use-toast";
+import { Loader2 } from "lucide-react";
 import SearchToolbar from "@/components/SearchToolbar";
 import PaginatedDataTable from "@/components/PaginatedDataTable";
-import { Loader2 } from "lucide-react";
-import { Link } from "react-router-dom";
 
-const Library = () => {
-  const [sheetData, setSheetData] = useState<any[]>([]);
+interface Seller {
+  seller_id: string;
+  name: string;
+  domain: string;
+  seller_type: string;
+  [key: string]: any; // For any additional fields in the data
+}
+
+interface SellersJsonData {
+  version: string;
+  contact_email: string;
+  contact_address: string;
+  identifiers: Array<{ name: string, value: string }>;
+  sellers: Seller[];
+}
+
+const SellersJson = () => {
+  const [sellersData, setSellersData] = useState<Seller[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilters, setActiveFilters] = useState<Array<{column: string, operator: string, value: string}>>([]);
+  const [visibleColumns, setVisibleColumns] = useState<string[]>([]);
   const { toast } = useToast();
   
-  // State for column visibility
-  const [visibleColumns, setVisibleColumns] = useState<string[]>([]);
+  // URL for fetching the sellers.json data
+  const sellersJsonUrl = "https://platform.showheroes.com/app/sellers.json";
   
-  // Predefined Google Sheet URL - hardcoded but not shown to user
-  const sheetUrl = "https://docs.google.com/spreadsheets/d/1o14-srgPH-3-_kFfQSXUvse9Yz-PQaHxKTbVdkroxHc/edit";
-  
-  // URL for the Open Sheet button - explicitly for Library tab
-  const openSheetUrl = "https://docs.google.com/spreadsheets/d/1o14-srgPH-3-_kFfQSXUvse9Yz-PQaHxKTbVdkroxHc/";
+  // URL for the Open Sheet button - linking directly to the sellers.json source
+  const openJsonUrl = "https://platform.showheroes.com/app/sellers.json";
 
   useEffect(() => {
     // Load data when component mounts
-    loadSheetData();
+    fetchSellersData();
   }, []);
 
   // Initialize visible columns when data changes
   useEffect(() => {
-    if (sheetData.length > 0 && visibleColumns.length === 0) {
-      setVisibleColumns(Object.keys(sheetData[0]));
+    if (sellersData.length > 0 && visibleColumns.length === 0) {
+      setVisibleColumns(Object.keys(sellersData[0]));
     }
-  }, [sheetData]);
+  }, [sellersData]);
 
-  const loadSheetData = async () => {
+  const fetchSellersData = async () => {
     try {
       setIsLoading(true);
       
-      // Extract sheet ID from URL
-      const sheetId = parseSheetId(sheetUrl);
+      const response = await fetch(sellersJsonUrl);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch data: ${response.status} ${response.statusText}`);
+      }
       
-      if (!sheetId) {
+      const data: SellersJsonData = await response.json();
+      
+      // Extract sellers array from the response
+      if (data && data.sellers && Array.isArray(data.sellers)) {
+        setSellersData(data.sellers);
+      } else {
+        setSellersData([]);
         toast({
           title: "Error",
-          description: "Invalid Google Sheet URL",
+          description: "The data format received was not as expected",
           variant: "destructive",
         });
-        return;
-      }
-      
-      // Load the main sheet data
-      const data = await fetchPublicSheetData(sheetId);
-      
-      if (data && data.length > 0) {
-        // Transform raw data to objects with headers as keys
-        const transformedData = transformSheetData(data);
-        setSheetData(transformedData);
       }
     } catch (error) {
-      console.error("Error loading sheet data:", error);
+      console.error("Error loading sellers.json data:", error);
       toast({
         title: "Error",
-        description: "Failed to load library data. Please try again.",
+        description: "Failed to load sellers.json data. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -103,21 +111,20 @@ const Library = () => {
   // Filter data based on search term and active filters
   const filteredData = applyFilters(
     searchTerm 
-      ? sheetData.filter(row => 
+      ? sellersData.filter(row => 
           Object.values(row).some(
             value => String(value).toLowerCase().includes(searchTerm.toLowerCase())
           )
         )
-      : sheetData
+      : sellersData
   );
 
   const handleRefresh = () => {
-    loadSheetData();
+    fetchSellersData();
   };
 
   const handleApplyFilters = (filters: Array<{column: string, operator: string, value: string}>) => {
     setActiveFilters(filters);
-    // The actual filtering happens in the filteredData computation
   };
 
   return (
@@ -125,7 +132,7 @@ const Library = () => {
       {/* Main Content */}
       <div className="container mx-auto px-4 py-6 flex-grow">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">Ads.txt Library</h1>
+          <h1 className="text-4xl font-bold text-white mb-2">SH Sellers.json</h1>
         </div>
 
         <div className="space-y-6">
@@ -137,20 +144,20 @@ const Library = () => {
               onSearchChange={setSearchTerm}
               onRefresh={handleRefresh}
               isLoading={isLoading}
-              data={sheetData}
-              columns={sheetData.length > 0 ? Object.keys(sheetData[0]) : []}
+              data={sellersData}
+              columns={sellersData.length > 0 ? Object.keys(sellersData[0]) : []}
               visibleColumns={visibleColumns}
               onColumnVisibilityChange={setVisibleColumns}
               filteredData={filteredData}
               onApplyFilters={handleApplyFilters}
-              sheetUrl={openSheetUrl} // Pass the correct URL for Library
+              sheetUrl={openJsonUrl} // Pass URL for the "Open" button
             />
 
             {/* Data Table with Pagination and Sorting */}
-            {sheetData.length > 0 ? (
+            {sellersData.length > 0 ? (
               <PaginatedDataTable 
                 isLoading={isLoading}
-                data={sheetData}
+                data={sellersData}
                 filteredData={filteredData}
                 visibleColumns={visibleColumns}
               />
@@ -166,42 +173,10 @@ const Library = () => {
               </div>
             )}
           </div>
-          
-          {/* Additional library resources */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="bg-white/10 backdrop-blur-md border border-white/10">
-              <div className="p-6">
-                <h3 className="text-xl font-medium text-white mb-2">IAB ads.txt dataset</h3>
-                <p className="text-gray-300">
-                  Access the IBA datasets for more information.
-                </p>
-              </div>
-            </Card>
-            
-            <Card className="bg-white/10 backdrop-blur-md border border-white/10">
-              <div className="p-6">
-                <h3 className="text-xl font-medium text-white mb-2">Ads.txt distributions</h3>
-                <p className="text-gray-300">
-                  Click here to see ads.txt distribution for active domains.
-                </p>
-              </div>
-            </Card>
-            
-            <Link to="/sellers-json">
-              <Card className="bg-white/10 backdrop-blur-md border border-white/10 transition-colors hover:bg-white/20 cursor-pointer">
-                <div className="p-6">
-                  <h3 className="text-xl font-medium text-white mb-2">SH sellers.json</h3>
-                  <p className="text-gray-300">
-                    Click here to view ShowHeroes sellers.json data.
-                  </p>
-                </div>
-              </Card>
-            </Link>
-          </div>
         </div>
       </div>
     </div>
   );
 };
 
-export default Library;
+export default SellersJson;
