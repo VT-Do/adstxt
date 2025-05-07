@@ -195,7 +195,7 @@ const PaginatedDataTable: React.FC<PaginatedDataTableProps> = ({
         >
           <Download className="h-4 w-4" />
           Export CSV
-        </Button> /*}
+        </Button> */}
       </div>
       
       <div className="overflow-x-auto">
