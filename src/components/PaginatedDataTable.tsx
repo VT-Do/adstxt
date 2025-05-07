@@ -192,10 +192,10 @@ const PaginatedDataTable: React.FC<PaginatedDataTableProps> = ({
           size="sm" 
           onClick={handleDownload}
           className="flex items-center gap-1"
-        >/*
+        >
           <Download className="h-4 w-4" />
           Export CSV
-        </Button>
+        </Button> /*
       </div>
       
       <div className="overflow-x-auto">
