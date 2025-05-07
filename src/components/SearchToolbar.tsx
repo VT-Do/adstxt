@@ -81,7 +81,7 @@ const SearchToolbar: React.FC<SearchToolbarProps> = ({
   
   const openInGoogleSheets = () => {
     // URL for Market Lines tab specifically
-    const marketLinesSheetUrl = "https://docs.google.com/spreadsheets/d/1IebVuhDeUO71KruSIzcoRwabpDPGrG83RekXjpFyjUY/edit#gid=0";
+    const marketLinesSheetUrl = "https://docs.google.com/spreadsheets/d/1z2NQ13FS_eVrgRd-b49_tsGKtemXpi1v/";
     window.open(marketLinesSheetUrl, '_blank');
     
     // Display a toast notification about opening the original sheet
