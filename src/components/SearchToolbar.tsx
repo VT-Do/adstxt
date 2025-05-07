@@ -80,7 +80,7 @@ const SearchToolbar: React.FC<SearchToolbarProps> = ({
   };
   
   const openInGoogleSheets = () => {
-    // First, create a CSV string from the data
+    // Get the filtered data to export
     const dataToExport = filteredData || data;
     if (!dataToExport.length) return;
     
@@ -106,12 +106,43 @@ const SearchToolbar: React.FC<SearchToolbarProps> = ({
       ).join(',')
     ).join('\n');
     
-    // Base64 encode the CSV content
-    const base64Content = btoa(unescape(encodeURIComponent(csvContent)));
+    // Create a blob and generate an object URL
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
     
-    // Open Google Sheets with the data
-    const googleSheetsUrl = `https://docs.google.com/spreadsheets/d/e/2PACX-1vRnOo-5YJ6nxJG3AOhfgGxv7PtOtp2Xhn-Q9RYu9TmUOQHdoz6GVJhUUyFmBxX3QA/pub?output=csv&gid=0&data=${base64Content}`;
-    window.open(`https://docs.google.com/spreadsheets/create?usp=sheets_api`, '_blank');
+    // Create a link to trigger the download
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'data-for-sheets.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Open Google Sheets in a new tab with instructions
+    window.open('https://docs.google.com/spreadsheets/u/0/create?usp=direct_url', '_blank');
+    
+    // Display import instructions using toast notification
+    const toast = document.createElement('div');
+    toast.style.position = 'fixed';
+    toast.style.bottom = '20px';
+    toast.style.right = '20px';
+    toast.style.padding = '15px';
+    toast.style.backgroundColor = '#4CAF50';
+    toast.style.color = 'white';
+    toast.style.borderRadius = '4px';
+    toast.style.zIndex = '1000';
+    toast.innerHTML = `
+      <div>
+        <p><strong>CSV file downloaded!</strong></p>
+        <p>In Google Sheets: Click File > Import > Upload > Select the downloaded file</p>
+      </div>
+    `;
+    document.body.appendChild(toast);
+    
+    // Remove the toast after 10 seconds
+    setTimeout(() => {
+      document.body.removeChild(toast);
+    }, 10000);
   };
 
   return (
