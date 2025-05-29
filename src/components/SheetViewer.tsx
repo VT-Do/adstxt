@@ -21,7 +21,10 @@ const SheetViewer = ({ onDataLoaded }) => {
   const [publicSheetUrl, setPublicSheetUrl] = useState("https://docs.google.com/spreadsheets/d/18BriA-gtmtxV8aL47vOpAWL-kFp2aQkxv_4-kbRJF-w/edit?gid=0#gid=0");
   const [activeSheet, setActiveSheet] = useState(null);
   const { toast } = useToast();
-  const { isAdmin, user } = useAuth();
+  const { profile, user } = useAuth();
+
+  // Check if user is admin
+  const isAdmin = profile?.role === 'admin';
 
   // Load the public sheet data when the component mounts
   useEffect(() => {
@@ -104,12 +107,10 @@ const SheetViewer = ({ onDataLoaded }) => {
         return;
       }
       
-      // Prepare data for insertion
+      // Prepare data for insertion - fix the column mapping
       const rowsToInsert = sheetData.map(row => ({
-        sheet_id: activeSheet.properties.sheetId,
-        row_data: row,
-        created_by: user.id,
-        updated_by: user.id,
+        data: row, // Use 'data' instead of 'row_data'
+        // Remove sheet_id, created_by, updated_by as they don't exist in the table
       }));
       
       // Insert data into supabase
