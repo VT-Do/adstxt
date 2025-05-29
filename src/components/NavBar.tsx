@@ -75,7 +75,7 @@ const NavBar = () => {
                   className="gap-2"
                 >
                   <Home className="h-4 w-4" />
-                  Main
+                  Main - Test
                 </Button>
               </Link>
               {isAdmin && (
