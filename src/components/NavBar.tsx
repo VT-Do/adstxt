@@ -69,7 +69,7 @@ const NavBar = () => {
           {/* Secondary Navigation (only visible when logged in) */}
           {user && (
             <nav className="hidden md:flex items-center space-x-1">
-              <Link to="/">
+              <Link to="/login">
                 <Button 
                   variant={isActive("/") ? "default" : "ghost"} 
                   className="gap-2"
