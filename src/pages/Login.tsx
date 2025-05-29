@@ -62,14 +62,7 @@ const Login = () => {
       <div className="container mx-auto px-4 py-6 flex-grow">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-white mb-2">Ads.txt Lines per Market</h1>
-          {profile && (
-            <p className="text-gray-300">
-              Welcome, {profile.email} 
-              <span className="ml-2 text-xs bg-primary/20 text-primary px-2 py-1 rounded-full">
-                {profile.role}
-              </span>
-            </p>
-          )}
+
         </div>
 
         <div className="space-y-6">
