@@ -1,11 +1,26 @@
 
 import React, { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import SignIn from "@/components/SignIn";
 import { useSheetData } from "@/hooks/useSheetData";
 import SheetTabsList from "@/components/SheetTabsList";
 import SearchToolbar from "@/components/SearchToolbar";
 import PaginatedDataTable from "@/components/PaginatedDataTable";
 
 const Login = () => {
+  const { user, profile } = useAuth();
+
+  // If not authenticated, show sign-in form
+  if (!user) {
+    return (
+      <div className="flex flex-col min-h-screen bg-[#0f1429]">
+        <div className="container mx-auto px-4 py-6 flex-grow flex items-center justify-center">
+          <SignIn />
+        </div>
+      </div>
+    );
+  }
+
   // Google Sheet URL from the user's request
   const sheetUrl = "https://docs.google.com/spreadsheets/d/1z2NQ13FS_eVrgRd-b49_tsGKtemXpi1v/edit?gid=916740284#gid=916740284";
   // Google Sheet URL for the Open Sheet button
@@ -47,6 +62,14 @@ const Login = () => {
       <div className="container mx-auto px-4 py-6 flex-grow">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-white mb-2">Ads.txt Lines per Market</h1>
+          {profile && (
+            <p className="text-gray-300">
+              Welcome, {profile.email} 
+              <span className="ml-2 text-xs bg-primary/20 text-primary px-2 py-1 rounded-full">
+                {profile.role}
+              </span>
+            </p>
+          )}
         </div>
 
         <div className="space-y-6">

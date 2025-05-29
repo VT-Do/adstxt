@@ -5,11 +5,13 @@ import { useAuth } from "@/contexts/AuthContext";
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requireAdmin?: boolean;
+  requireNonViewer?: boolean;
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
   children, 
-  requireAdmin = false 
+  requireAdmin = false,
+  requireNonViewer = false
 }) => {
   const { user, profile, isLoading } = useAuth();
   const location = useLocation();
@@ -31,6 +33,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   if (requireAdmin && profile?.role !== 'admin') {
     // Redirect to home if not an admin
     return <Navigate to="/" replace />;
+  }
+
+  if (requireNonViewer && profile?.role === 'viewer') {
+    // Redirect to login if viewer tries to access restricted content
+    return <Navigate to="/login" replace />;
   }
 
   return <>{children}</>;

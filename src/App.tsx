@@ -26,19 +26,18 @@ const AppRoutes = () => (
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/library" element={<Library />} />
-        <Route path="/my-library" element={<Library />} />
-        <Route path="/sellers-json" element={<SellersJson />} />
         <Route path="/contact" element={<Contact />} />
+        
+        {/* Protected route for SH Sellers.json - only for non-viewer roles */}
+        <Route path="/my-library" element={
+          <ProtectedRoute requireNonViewer={true}>
+            <SellersJson />
+          </ProtectedRoute>
+        } />
         
         <Route path="/" element={
           <ProtectedRoute>
             <Index />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/contact" element={
-          <ProtectedRoute>
-            <Contact />
           </ProtectedRoute>
         } />
         

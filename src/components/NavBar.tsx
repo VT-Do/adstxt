@@ -12,6 +12,9 @@ const NavBar = () => {
     return location.pathname === path;
   };
 
+  // Check if user is viewer (should not see SH Sellers.json tab)
+  const isViewer = profile?.role === 'viewer';
+
   return (
     <header className="border-b sticky top-0 z-40 bg-white">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
@@ -40,15 +43,18 @@ const NavBar = () => {
                 Library
               </Button>
             </Link>
-            <Link to="/my-library">
-              <Button 
-                variant={isActive("/my-library") ? "default" : "ghost"}
-                className="gap-2"
-              >
-                <Book className="h-4 w-4" />
-                SH Sellers.json
-              </Button>
-            </Link>  
+            {/* Only show SH Sellers.json tab if user is NOT a viewer */}
+            {!isViewer && (
+              <Link to="/my-library">
+                <Button 
+                  variant={isActive("/my-library") ? "default" : "ghost"}
+                  className="gap-2"
+                >
+                  <Book className="h-4 w-4" />
+                  SH Sellers.json
+                </Button>
+              </Link>
+            )}
             <Link to="/contact">
               <Button 
                 variant={isActive("/contact") ? "default" : "ghost"} 
@@ -89,7 +95,7 @@ const NavBar = () => {
           {user ? (
             <div className="flex items-center gap-4">
               <div className="text-sm">
-                <span className="font-medium">{profile?.full_name || profile?.email}</span>
+                <span className="font-medium">{profile?.email}</span>
                 {profile?.role && (
                   <span className="ml-2 text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
                     {profile.role}
@@ -105,9 +111,6 @@ const NavBar = () => {
             <div className="flex items-center gap-2">
               <Button asChild variant="ghost" size="sm">
                 <Link to="/login">Log in</Link>
-              </Button>
-              <Button asChild size="sm">
-                <Link to="/register">Sign up</Link>
               </Button>
             </div>
           )}
