@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { fetchPublicSheetData, parseSheetId } from "@/utils/googleApi";
@@ -153,6 +152,7 @@ const Library = () => {
                 data={sheetData}
                 filteredData={filteredData}
                 visibleColumns={visibleColumns}
+                tab="library"
               />
             ) : (
               <div className="text-center py-12">

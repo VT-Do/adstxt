@@ -18,24 +18,28 @@ import {
   getColumnType,
   downloadAsCSV 
 } from "@/utils/columnNameMapping";
+import { useColumnVisibility } from "@/hooks/useColumnVisibility";
 
 interface PaginatedDataTableProps {
   isLoading: boolean;
   data: any[];
   filteredData: any[];
   visibleColumns?: string[];
+  tab?: string; // Add tab prop to determine which visibility settings to use
 }
 
 const PaginatedDataTable: React.FC<PaginatedDataTableProps> = ({ 
   isLoading, 
   data, 
   filteredData,
-  visibleColumns 
+  visibleColumns,
+  tab = "market-lines" // Default tab
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [sortField, setSortField] = useState("");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [sortedData, setSortedData] = useState<any[]>([]);
+  const { isColumnVisible } = useColumnVisibility(tab);
   
   const rowsPerPage = 100;
   const totalPages = Math.ceil(filteredData.length / rowsPerPage);
@@ -170,10 +174,17 @@ const PaginatedDataTable: React.FC<PaginatedDataTableProps> = ({
   const currentPageData = getCurrentPageData();
   // Get all available headers
   const allHeaders = Object.keys(data[0] || {});
-  // If visibleColumns is provided and has values, use it, otherwise show all columns
-  const headers = visibleColumns && visibleColumns.length > 0
-    ? allHeaders.filter(header => visibleColumns.includes(header))
-    : allHeaders;
+  
+  // Apply column visibility settings and user's visible columns preference
+  let headers = allHeaders;
+  
+  // First apply user's visible columns filter if provided
+  if (visibleColumns && visibleColumns.length > 0) {
+    headers = headers.filter(header => visibleColumns.includes(header));
+  }
+  
+  // Then apply role-based column visibility settings
+  headers = headers.filter(header => isColumnVisible(header));
 
   // Calculate the range of records being shown
   const startRecord = (currentPage - 1) * rowsPerPage + 1;

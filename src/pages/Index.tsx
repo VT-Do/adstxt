@@ -50,7 +50,7 @@ const Index = () => {
 
               <div className="p-6">
                 <TabsContent value="table">
-                  <SheetViewer onDataLoaded={handleDataLoaded} />
+                  <SheetViewer onDataLoaded={handleDataLoaded} tab="market-lines" />
                 </TabsContent>
                 <TabsContent value="chart">
                   <ChartView data={data} />

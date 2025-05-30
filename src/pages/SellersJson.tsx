@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
@@ -160,6 +159,7 @@ const SellersJson = () => {
                 data={sellersData}
                 filteredData={filteredData}
                 visibleColumns={visibleColumns}
+                tab="sellers-json"
               />
             ) : (
               <div className="text-center py-12">
