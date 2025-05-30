@@ -25,15 +25,13 @@ const Settings = () => {
 
   // Sample columns for Market Lines (these would normally come from actual data)
   const sampleMarketLinesColumns = [
-    "SSP", "Account", "Weight", "SELLER NAME", "Type", "Line", 
-    "SELLER DOMAIN", "SELLER TYPE", "Division", "Primary_", "ID", "Score", "Key"
-  ];
+     "Line", "Key","BU","Score","Score","Priority_Weight","Revenue","OMP_rev","PMP_rev","RES_rev","Revenue_all",
+    "BidOpp","OMP_bidopp","PMP_bidopp","RES_bidopp","BidOpp_all","RPMO","Primary_Line","SELLER DOMAIN","SELLER NAME","SELLER TYPE"];
 
   // Sample columns for Library (these would normally come from actual data)
   const sampleLibraryColumns = [
-    "Publisher", "Domain", "Status", "Last Updated", "Ads.txt Lines", 
-    "Revenue", "Performance", "Score", "Key", "Category"
-  ];
+    "Line", "Type", "Primary_Line", "Priority_Weight", "Account", 
+    "demand_partner", "demand_market_division", "ID", "SELLER DOMAIN", "SELLER NAME","SELLER TYPE"];
 
   useEffect(() => {
     setMarketLinesColumns(sampleMarketLinesColumns);
