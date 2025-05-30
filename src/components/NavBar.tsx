@@ -2,7 +2,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { FileText, Library, Book, Mail, Home, LogOut } from "lucide-react";
+import { FileText, Library, Book, Mail, LogOut } from "lucide-react";
 
 const NavBar = () => {
   const location = useLocation();
@@ -66,28 +66,17 @@ const NavBar = () => {
             </Link>
           </nav>
           
-          {/* Secondary Navigation (only visible when logged in) */}
-          {user && (
+          {/* Admin Navigation (only visible when logged in and is admin) */}
+          {user && isAdmin && (
             <nav className="hidden md:flex items-center space-x-1">
-              <Link to="/login">
+              <Link to="/admin">
                 <Button 
-                  variant={isActive("/") ? "default" : "ghost"} 
+                  variant={isActive("/admin") ? "default" : "ghost"}
                   className="gap-2"
                 >
-                  <Home className="h-4 w-4" />
-                  Main - Test
+                  Admin
                 </Button>
               </Link>
-              {isAdmin && (
-                <Link to="/admin">
-                  <Button 
-                    variant={isActive("/admin") ? "default" : "ghost"}
-                    className="gap-2"
-                  >
-                    Admin
-                  </Button>
-                </Link>
-              )}
             </nav>
           )}
         </div>

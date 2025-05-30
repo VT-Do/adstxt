@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { Session, User } from "@supabase/supabase-js";
@@ -116,7 +115,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         description: "Welcome back!",
       });
       
-      navigate("/");
+      navigate("/login"); // Changed from "/" to "/login" (Market Lines)
     } catch (error) {
       console.error("Sign in error:", error);
       throw error;
