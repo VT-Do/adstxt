@@ -1,8 +1,7 @@
-
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { FileText, Library, Book, Mail, LogOut } from "lucide-react";
+import { FileText, Library, Book, Mail, LogOut, Settings } from "lucide-react";
 
 const NavBar = () => {
   const location = useLocation();
@@ -75,6 +74,15 @@ const NavBar = () => {
                   className="gap-2"
                 >
                   Admin
+                </Button>
+              </Link>
+              <Link to="/settings">
+                <Button 
+                  variant={isActive("/settings") ? "default" : "ghost"}
+                  className="gap-2"
+                >
+                  <Settings className="h-4 w-4" />
+                  Settings
                 </Button>
               </Link>
             </nav>

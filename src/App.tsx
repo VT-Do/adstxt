@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -10,6 +9,7 @@ import Register from "./pages/Register";
 import Library from "./pages/Library";
 import Contact from "./pages/Contact";
 import AdminPanel from "./pages/AdminPanel";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import SellersJson from "./pages/SellersJson";
 import { AuthProvider } from "./contexts/AuthContext";
@@ -45,6 +45,12 @@ const AppRoutes = () => (
         <Route path="/admin" element={
           <ProtectedRoute requireAdmin={true}>
             <AdminPanel />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/settings" element={
+          <ProtectedRoute requireAdmin={true}>
+            <Settings />
           </ProtectedRoute>
         } />
         
