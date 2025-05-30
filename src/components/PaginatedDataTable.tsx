@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/components/ui/table";
 import { Loader2, ArrowUp, ArrowDown, Download } from "lucide-react";
@@ -25,7 +26,7 @@ interface PaginatedDataTableProps {
   data: any[];
   filteredData: any[];
   visibleColumns?: string[];
-  tab?: string; // Add tab prop to determine which visibility settings to use
+  tab?: string;
 }
 
 const PaginatedDataTable: React.FC<PaginatedDataTableProps> = ({ 
@@ -33,13 +34,13 @@ const PaginatedDataTable: React.FC<PaginatedDataTableProps> = ({
   data, 
   filteredData,
   visibleColumns,
-  tab = "market-lines" // Default tab
+  tab = "market-lines"
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [sortField, setSortField] = useState("");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [sortedData, setSortedData] = useState<any[]>([]);
-  const { isColumnVisible } = useColumnVisibility(tab);
+  const { isColumnVisible, loading: visibilityLoading } = useColumnVisibility(tab);
   
   const rowsPerPage = 100;
   const totalPages = Math.ceil(filteredData.length / rowsPerPage);
@@ -53,23 +54,19 @@ const PaginatedDataTable: React.FC<PaginatedDataTableProps> = ({
         const aValue = a[sortField] ?? "";
         const bValue = b[sortField] ?? "";
         
-        // Get column type for proper sorting
         const columnType = getColumnType(sortField);
         
-        // Handle different column types
         if (columnType === "percentage") {
           const aNum = parsePercentage(aValue);
           const bNum = parsePercentage(bValue);
           return sortDirection === "asc" ? aNum - bNum : bNum - aNum;
         }
         else if (columnType === "number" || (!isNaN(Number(aValue)) && !isNaN(Number(bValue)))) {
-          // Regular numeric sorting
           const aNum = Number(aValue);
           const bNum = Number(bValue);
           return sortDirection === "asc" ? aNum - bNum : bNum - aNum;
         } 
         else {
-          // String sorting
           const aString = String(aValue).toLowerCase();
           const bString = String(bValue).toLowerCase();
           
@@ -90,72 +87,58 @@ const PaginatedDataTable: React.FC<PaginatedDataTableProps> = ({
     setCurrentPage(1);
   }, [filteredData]);
   
-  // Handle column header click for sorting
   const handleSort = (field: string) => {
     if (sortField === field) {
-      // Toggle direction if clicking the same field
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     } else {
-      // Set new field and reset to ascending
       setSortField(field);
       setSortDirection("asc");
     }
   };
   
-  // Get current page data
   const getCurrentPageData = () => {
     const startIndex = (currentPage - 1) * rowsPerPage;
     const endIndex = startIndex + rowsPerPage;
     return sortedData.slice(startIndex, endIndex);
   };
   
-  // Generate page numbers for pagination
   const getPageNumbers = () => {
     const pages = [];
     const maxVisiblePages = 5;
     
     if (totalPages <= maxVisiblePages) {
-      // Display all pages if there are few
       for (let i = 1; i <= totalPages; i++) {
         pages.push(i);
       }
     } else {
-      // Always show first page
       pages.push(1);
       
-      // Show pages around current page
       const leftBoundary = Math.max(2, currentPage - 1);
       const rightBoundary = Math.min(totalPages - 1, currentPage + 1);
       
-      // Add ellipsis if needed
       if (leftBoundary > 2) {
-        pages.push(-1); // -1 indicates ellipsis
+        pages.push(-1);
       }
       
-      // Add pages around current page
       for (let i = leftBoundary; i <= rightBoundary; i++) {
         pages.push(i);
       }
       
-      // Add ellipsis if needed
       if (rightBoundary < totalPages - 1) {
-        pages.push(-2); // -2 indicates ellipsis
+        pages.push(-2);
       }
       
-      // Always show last page
       pages.push(totalPages);
     }
     
     return pages;
   };
   
-  // Add a download handler function
   const handleDownload = () => {
-    // Use filtered data for download but include only visible columns
     downloadAsCSV(filteredData, 'table-data.csv', visibleColumns);
   };
   
-  if (isLoading) {
+  if (isLoading || visibilityLoading) {
     return (
       <div className="flex justify-center items-center py-12">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -172,10 +155,9 @@ const PaginatedDataTable: React.FC<PaginatedDataTableProps> = ({
   }
 
   const currentPageData = getCurrentPageData();
-  // Get all available headers
   const allHeaders = Object.keys(data[0] || {});
   
-  // Apply column visibility settings and user's visible columns preference
+  // Apply column visibility settings
   let headers = allHeaders;
   
   // First apply user's visible columns filter if provided
@@ -184,9 +166,14 @@ const PaginatedDataTable: React.FC<PaginatedDataTableProps> = ({
   }
   
   // Then apply role-based column visibility settings
-  headers = headers.filter(header => isColumnVisible(header));
+  headers = headers.filter(header => {
+    const visible = isColumnVisible(header);
+    console.log(`Filtering header ${header}: ${visible ? 'keeping' : 'removing'}`);
+    return visible;
+  });
 
-  // Calculate the range of records being shown
+  console.log("Final headers after filtering:", headers);
+
   const startRecord = (currentPage - 1) * rowsPerPage + 1;
   const endRecord = Math.min(currentPage * rowsPerPage, sortedData.length);
 
@@ -197,16 +184,6 @@ const PaginatedDataTable: React.FC<PaginatedDataTableProps> = ({
           Showing {startRecord}-{endRecord} of {sortedData.length} records
           {totalPages > 1 && ` • Page ${currentPage} of ${totalPages}`}
         </div>
-        
-        {/*<Button 
-          variant="outline" 
-          size="sm" 
-          onClick={handleDownload}
-          className="flex items-center gap-1"
-        >
-          <Download className="h-4 w-4" />
-          Export CSV
-        </Button> */}
       </div>
       
       <div className="overflow-x-auto">

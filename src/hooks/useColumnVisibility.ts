@@ -11,9 +11,12 @@ export const useColumnVisibility = (tab: string) => {
   useEffect(() => {
     const fetchColumnVisibility = async () => {
       if (!profile?.role) {
+        console.log("No profile role found, setting loading to false");
         setLoading(false);
         return;
       }
+
+      console.log("Fetching column visibility for role:", profile.role, "tab:", tab);
 
       try {
         const { data, error } = await supabase
@@ -28,7 +31,10 @@ export const useColumnVisibility = (tab: string) => {
           return;
         }
 
-        setHiddenColumns(data?.hidden_columns || []);
+        console.log("Column visibility data:", data);
+        const columnsToHide = data?.hidden_columns || [];
+        console.log("Setting hidden columns:", columnsToHide);
+        setHiddenColumns(columnsToHide);
       } catch (error) {
         console.error("Error fetching column visibility:", error);
       } finally {
@@ -40,7 +46,9 @@ export const useColumnVisibility = (tab: string) => {
   }, [tab, profile?.role]);
 
   const isColumnVisible = (columnName: string) => {
-    return !hiddenColumns.includes(columnName);
+    const visible = !hiddenColumns.includes(columnName);
+    console.log(`Column ${columnName} is ${visible ? 'visible' : 'hidden'} for role ${profile?.role}`);
+    return visible;
   };
 
   return {
