@@ -45,7 +45,7 @@ const Settings = () => {
     try {
       setLoading(true);
       const { data, error } = await supabase
-        .from('column_visibility_settings')
+        .from('column_visibility_settings' as any)
         .select('*')
         .eq('role', 'viewer');
 
@@ -54,7 +54,7 @@ const Settings = () => {
         return;
       }
 
-      setViewerSettings(data || []);
+      setViewerSettings((data as any) || []);
     } catch (error: any) {
       console.error("Error fetching settings:", error);
     } finally {
@@ -103,7 +103,7 @@ const Settings = () => {
       
       // Delete existing settings for viewer role
       await supabase
-        .from('column_visibility_settings')
+        .from('column_visibility_settings' as any)
         .delete()
         .eq('role', 'viewer');
 
@@ -116,7 +116,7 @@ const Settings = () => {
 
       if (settingsToInsert.length > 0) {
         const { error } = await supabase
-          .from('column_visibility_settings')
+          .from('column_visibility_settings' as any)
           .insert(settingsToInsert);
 
         if (error) {

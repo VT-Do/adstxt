@@ -9,6 +9,33 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      column_visibility_settings: {
+        Row: {
+          created_at: string
+          hidden_columns: string[]
+          id: string
+          role: string
+          tab: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          hidden_columns?: string[]
+          id?: string
+          role: string
+          tab: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          hidden_columns?: string[]
+          id?: string
+          role?: string
+          tab?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string | null
