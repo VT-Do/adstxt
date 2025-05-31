@@ -1,4 +1,3 @@
-
 /**
  * Formats a number as Euro currency with European formatting
  */
@@ -26,7 +25,7 @@ export const formatEuroValue = (value: any): string => {
 };
 
 /**
- * Formats numeric values with European formatting (comma for thousands, dot for decimals)
+ * Formats numeric values with the same logic as Euro values but without the € symbol
  */
 export const formatNumericValue = (value: any): string => {
   // Convert to number, handle null/undefined/empty values
@@ -36,8 +35,19 @@ export const formatNumericValue = (value: any): string => {
     return String(value || '');
   }
   
-  // Use formatting with comma for thousands separator and dot for decimals
-  return numValue.toLocaleString('en-US');
+  // For values less than 10, use dot with 1 decimal place
+  if (numValue < 10) {
+    return numValue.toLocaleString('en-US', {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1
+    });
+  }
+  
+  // For values 10 and above, round to whole number
+  const roundedValue = Math.round(numValue);
+  
+  // Use formatting with comma for thousands separator
+  return roundedValue.toLocaleString('en-US');
 };
 
 /**
