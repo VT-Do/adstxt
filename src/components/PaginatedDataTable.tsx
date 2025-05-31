@@ -18,7 +18,7 @@ import {
   getColumnType,
   downloadAsCSV 
 } from "@/utils/columnNameMapping";
-import { formatEuroValue, isRevenueColumn } from "@/utils/euroFormatter";
+import { formatEuroValue, isRevenueColumn, formatRpmoValue, isRpmoColumn, formatNumericValue, isNumericColumn } from "@/utils/euroFormatter";
 import { useColumnVisibility } from "@/hooks/useColumnVisibility";
 
 interface PaginatedDataTableProps {
@@ -220,7 +220,11 @@ const PaginatedDataTable: React.FC<PaginatedDataTableProps> = ({
                     {row[header] !== null && row[header] !== undefined ? (
                       isRevenueColumn(header) ? 
                         formatEuroValue(row[header]) : 
-                        String(row[header])
+                        isRpmoColumn(header) ?
+                          formatRpmoValue(row[header]) :
+                          isNumericColumn(header, row[header]) ?
+                            formatNumericValue(row[header]) :
+                            String(row[header])
                     ) : ""}
                   </TableCell>
                 ))}

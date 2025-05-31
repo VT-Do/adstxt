@@ -10,9 +10,9 @@ export const formatEuroValue = (value: any): string => {
     return String(value || '');
   }
   
-  // For values less than 10, use comma with 1 decimal place
+  // For values less than 10, use dot with 1 decimal place
   if (numValue < 10) {
-    return numValue.toLocaleString('de-DE', {
+    return numValue.toLocaleString('en-US', {
       minimumFractionDigits: 1,
       maximumFractionDigits: 1
     }) + ' €';
@@ -21,8 +21,41 @@ export const formatEuroValue = (value: any): string => {
   // For values 10 and above, round to whole number
   const roundedValue = Math.round(numValue);
   
-  // Use European formatting with dots for thousands separator
-  return roundedValue.toLocaleString('de-DE') + ' €';
+  // Use formatting with comma for thousands separator
+  return roundedValue.toLocaleString('en-US') + ' €';
+};
+
+/**
+ * Formats numeric values with European formatting (comma for thousands, dot for decimals)
+ */
+export const formatNumericValue = (value: any): string => {
+  // Convert to number, handle null/undefined/empty values
+  const numValue = Number(value);
+  
+  if (isNaN(numValue) || value === null || value === undefined || value === '') {
+    return String(value || '');
+  }
+  
+  // Use formatting with comma for thousands separator and dot for decimals
+  return numValue.toLocaleString('en-US');
+};
+
+/**
+ * Formats RPMO values with 4 decimal places
+ */
+export const formatRpmoValue = (value: any): string => {
+  // Convert to number, handle null/undefined/empty values
+  const numValue = Number(value);
+  
+  if (isNaN(numValue) || value === null || value === undefined || value === '') {
+    return String(value || '');
+  }
+  
+  // Format with 4 decimal places
+  return numValue.toLocaleString('en-US', {
+    minimumFractionDigits: 4,
+    maximumFractionDigits: 4
+  });
 };
 
 /**
@@ -30,4 +63,25 @@ export const formatEuroValue = (value: any): string => {
  */
 export const isRevenueColumn = (columnName: string): boolean => {
   return columnName.toLowerCase().includes('rev');
+};
+
+/**
+ * Checks if a column name contains 'rpmo' (case insensitive) indicating it's an RPMO column
+ */
+export const isRpmoColumn = (columnName: string): boolean => {
+  return columnName.toLowerCase().includes('rpmo');
+};
+
+/**
+ * Checks if a column contains numeric values (excluding revenue and RPMO columns)
+ */
+export const isNumericColumn = (columnName: string, value: any): boolean => {
+  // Don't format if it's already a revenue or RPMO column
+  if (isRevenueColumn(columnName) || isRpmoColumn(columnName)) {
+    return false;
+  }
+  
+  // Check if the value is numeric
+  const numValue = Number(value);
+  return !isNaN(numValue) && value !== null && value !== undefined && value !== '';
 };
