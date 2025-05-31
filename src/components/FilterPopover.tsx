@@ -16,6 +16,7 @@ import {
   Search, 
   ChevronRight, 
   ChevronLeft,
+  Trash2,
 } from "lucide-react";
 
 interface FilterPopoverProps {
@@ -70,6 +71,14 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
     const newFilters = [...activeFilters];
     newFilters.splice(index, 1);
     setActiveFilters(newFilters);
+  };
+
+  const handleClearAllFilters = () => {
+    setActiveFilters([]);
+    // Apply empty filters to reset the table
+    if (onApplyFilters) {
+      onApplyFilters([]);
+    }
   };
 
   const handleApplyFilters = () => {
@@ -172,7 +181,18 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
 
       {activeFilters.length > 0 && (
         <div className="space-y-2">
-          <h4 className="text-sm font-medium">Active Filters</h4>
+          <div className="flex items-center justify-between">
+            <h4 className="text-sm font-medium">Active Filters</h4>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={handleClearAllFilters}
+              className="text-destructive hover:text-destructive h-6 px-2"
+            >
+              <Trash2 className="h-3 w-3 mr-1" />
+              Clear All
+            </Button>
+          </div>
           <div className="space-y-2 max-h-48 overflow-y-auto">
             {activeFilters.map((filter, index) => (
               <div key={index} className="flex items-center gap-2 bg-gray-100 p-2 rounded">
