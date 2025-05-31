@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/components/ui/table";
 import { Loader2, ArrowUp, ArrowDown, Download } from "lucide-react";
@@ -19,6 +18,7 @@ import {
   getColumnType,
   downloadAsCSV 
 } from "@/utils/columnNameMapping";
+import { formatEuroValue, isRevenueColumn } from "@/utils/euroFormatter";
 import { useColumnVisibility } from "@/hooks/useColumnVisibility";
 
 interface PaginatedDataTableProps {
@@ -217,7 +217,11 @@ const PaginatedDataTable: React.FC<PaginatedDataTableProps> = ({
               <TableRow key={index}>
                 {headers.map((header, cellIndex) => (
                   <TableCell key={`${index}-${cellIndex}`}>
-                    {row[header] !== null && row[header] !== undefined ? String(row[header]) : ""}
+                    {row[header] !== null && row[header] !== undefined ? (
+                      isRevenueColumn(header) ? 
+                        formatEuroValue(row[header]) : 
+                        String(row[header])
+                    ) : ""}
                   </TableCell>
                 ))}
               </TableRow>
