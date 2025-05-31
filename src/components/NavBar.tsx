@@ -1,3 +1,4 @@
+
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -65,17 +66,9 @@ const NavBar = () => {
             </Link>
           </nav>
           
-          {/* Admin Navigation (only visible when logged in and is admin) */}
+          {/* Settings Navigation (only visible when logged in and is admin) */}
           {user && isAdmin && (
             <nav className="hidden md:flex items-center space-x-1">
-              <Link to="/admin">
-                <Button 
-                  variant={isActive("/admin") ? "default" : "ghost"}
-                  className="gap-2"
-                >
-                  Admin
-                </Button>
-              </Link>
               <Link to="/settings">
                 <Button 
                   variant={isActive("/settings") ? "default" : "ghost"}

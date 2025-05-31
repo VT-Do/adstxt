@@ -9,7 +9,6 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Library from "./pages/Library";
 import Contact from "./pages/Contact";
-import AdminPanel from "./pages/AdminPanel";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import SellersJson from "./pages/SellersJson";
@@ -44,12 +43,6 @@ const AppRoutes = () => {
           <Route path="/" element={
             <ProtectedRoute>
               <Login />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/admin" element={
-            <ProtectedRoute requireAdmin={true}>
-              <AdminPanel />
             </ProtectedRoute>
           } />
           

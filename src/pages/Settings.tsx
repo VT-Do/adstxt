@@ -1,13 +1,15 @@
 
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
+import { Profile } from "@/types";
 import { useToast } from "@/hooks/use-toast";
-import { Settings as SettingsIcon, Save } from "lucide-react";
+import { Settings as SettingsIcon, Save, User, Check, X } from "lucide-react";
 
 interface ColumnVisibilitySettings {
   id?: string;
@@ -17,6 +19,7 @@ interface ColumnVisibilitySettings {
 }
 
 const Settings = () => {
+  const [users, setUsers] = useState<Profile[]>([]);
   const [marketLinesColumns, setMarketLinesColumns] = useState<string[]>([]);
   const [libraryColumns, setLibraryColumns] = useState<string[]>([]);
   const [viewerSettings, setViewerSettings] = useState<ColumnVisibilitySettings[]>([]);
@@ -36,8 +39,30 @@ const Settings = () => {
   useEffect(() => {
     setMarketLinesColumns(sampleMarketLinesColumns);
     setLibraryColumns(sampleLibraryColumns);
+    fetchUsers();
     fetchSettings();
   }, []);
+
+  const fetchUsers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        throw error;
+      }
+
+      setUsers(data as Profile[]);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
 
   const fetchSettings = async () => {
     try {
@@ -57,6 +82,37 @@ const Settings = () => {
       console.error("Error fetching settings:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const toggleRole = async (user: Profile) => {
+    try {
+      const newRole = user.role === 'admin' ? 'viewer' : 'admin';
+      
+      const { error } = await supabase
+        .from('profiles')
+        .update({ role: newRole })
+        .eq('id', user.id);
+      
+      if (error) {
+        throw error;
+      }
+      
+      // Update local state
+      setUsers(users.map(u => 
+        u.id === user.id ? { ...u, role: newRole } : u
+      ));
+      
+      toast({
+        title: "Role updated",
+        description: `User ${user.email} is now a ${newRole}`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
     }
   };
 
@@ -162,11 +218,12 @@ const Settings = () => {
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">Settings</h1>
       
-      <Card>
+      {/* User Management Section */}
+      <Card className="mb-6">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <SettingsIcon className="h-5 w-5" />
-            Column Visibility Settings for Viewer Role
+            <User className="h-5 w-5" />
+            User Management
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -175,36 +232,109 @@ const Settings = () => {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
             </div>
           ) : (
-            <div className="space-y-6">
-              <p className="text-sm text-muted-foreground">
-                Configure which columns should be hidden for users with the "viewer" role in different tabs.
-              </p>
-              
-              <Tabs defaultValue="market-lines" className="w-full">
-                <TabsList>
-                  <TabsTrigger value="market-lines">Market Lines</TabsTrigger>
-                  <TabsTrigger value="library">Library</TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="market-lines" className="space-y-4">
-                  <h3 className="text-lg font-medium">Market Lines Tab Columns</h3>
-                  {renderColumnToggles(marketLinesColumns, 'market-lines')}
-                </TabsContent>
-                
-                <TabsContent value="library" className="space-y-4">
-                  <h3 className="text-lg font-medium">Library Tab Columns</h3>
-                  {renderColumnToggles(libraryColumns, 'library')}
-                </TabsContent>
-              </Tabs>
-              
-              <div className="flex justify-end pt-4">
-                <Button onClick={saveSettings} disabled={loading} className="flex items-center gap-2">
-                  <Save className="h-4 w-4" />
-                  Save Settings
-                </Button>
-              </div>
+            <div className="rounded-md border overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Role</TableHead>
+                    <TableHead>Created At</TableHead>
+                    <TableHead className="w-[100px]">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {users.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={5} className="h-24 text-center">
+                        No users found
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    users.map((user) => (
+                      <TableRow key={user.id}>
+                        <TableCell>{user.email}</TableCell>
+                        <TableCell>{user.full_name || "—"}</TableCell>
+                        <TableCell>
+                          <span className={`px-2 py-1 text-xs rounded-full ${
+                            user.role === 'admin' 
+                              ? 'bg-primary/20 text-primary' 
+                              : 'bg-secondary text-secondary-foreground'
+                          }`}>
+                            {user.role}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          {new Date(user.created_at).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => toggleRole(user)}
+                            className="w-full flex items-center justify-center gap-1"
+                          >
+                            {user.role === 'admin' ? (
+                              <>
+                                <X className="h-3 w-3" />
+                                <span>Remove Admin</span>
+                              </>
+                            ) : (
+                              <>
+                                <Check className="h-3 w-3" />
+                                <span>Make Admin</span>
+                              </>
+                            )}
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      {/* Column Visibility Settings */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <SettingsIcon className="h-5 w-5" />
+            Column Visibility Settings for Viewer Role
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-6">
+            <p className="text-sm text-muted-foreground">
+              Configure which columns should be hidden for users with the "viewer" role in different tabs.
+            </p>
+            
+            <Tabs defaultValue="market-lines" className="w-full">
+              <TabsList>
+                <TabsTrigger value="market-lines">Market Lines</TabsTrigger>
+                <TabsTrigger value="library">Library</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="market-lines" className="space-y-4">
+                <h3 className="text-lg font-medium">Market Lines Tab Columns</h3>
+                {renderColumnToggles(marketLinesColumns, 'market-lines')}
+              </TabsContent>
+              
+              <TabsContent value="library" className="space-y-4">
+                <h3 className="text-lg font-medium">Library Tab Columns</h3>
+                {renderColumnToggles(libraryColumns, 'library')}
+              </TabsContent>
+            </Tabs>
+            
+            <div className="flex justify-end pt-4">
+              <Button onClick={saveSettings} disabled={loading} className="flex items-center gap-2">
+                <Save className="h-4 w-4" />
+                Save Settings
+              </Button>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>
