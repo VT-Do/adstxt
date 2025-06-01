@@ -48,7 +48,7 @@ const AppRoutes = () => {
           } />
           
           {/* Redirect root to Market Lines for authenticated users */}
-          <Route path="/" element={
+          <Route path="/login" element={
             <ProtectedRoute>
               <Index />
             </ProtectedRoute>
