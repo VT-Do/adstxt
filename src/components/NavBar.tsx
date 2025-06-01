@@ -18,7 +18,7 @@ const NavBar = () => {
     <header className="border-b sticky top-0 z-40 bg-white">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-6">
-          <Link to="/" className="text-2xl font-bold bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">
+          <Link to="/login" className="text-2xl font-bold bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">
             ADS.TXT DATA
           </Link>
           
