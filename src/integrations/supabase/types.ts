@@ -41,6 +41,7 @@ export type Database = {
           created_at: string | null
           email: string | null
           id: string
+          name: string | null
           role: string | null
           updated_at: string | null
         }
@@ -48,6 +49,7 @@ export type Database = {
           created_at?: string | null
           email?: string | null
           id: string
+          name?: string | null
           role?: string | null
           updated_at?: string | null
         }
@@ -55,6 +57,7 @@ export type Database = {
           created_at?: string | null
           email?: string | null
           id?: string
+          name?: string | null
           role?: string | null
           updated_at?: string | null
         }
@@ -75,6 +78,30 @@ export type Database = {
           created_at?: string | null
           data?: Json
           id?: string
+        }
+        Relationships: []
+      }
+      tab_visibility_settings: {
+        Row: {
+          created_at: string
+          hidden_tabs: string[]
+          id: string
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          hidden_tabs?: string[]
+          id?: string
+          role: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          hidden_tabs?: string[]
+          id?: string
+          role?: string
+          updated_at?: string
         }
         Relationships: []
       }

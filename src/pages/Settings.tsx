@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -116,7 +117,7 @@ const Settings = () => {
       }
 
       if (data) {
-        setViewerTabSettings(data);
+        setViewerTabSettings(data as TabVisibilitySettings);
       }
     } catch (error: any) {
       console.error("Error fetching tab settings:", error);
@@ -328,7 +329,7 @@ const Settings = () => {
                     users.map((user) => (
                       <TableRow key={user.id}>
                         <TableCell>{user.email}</TableCell>
-                        <TableCell>{user.full_name || "—"}</TableCell>
+                        <TableCell>{user.name || "—"}</TableCell>
                         <TableCell>
                           <span className={`px-2 py-1 text-xs rounded-full ${
                             user.role === 'admin' 
