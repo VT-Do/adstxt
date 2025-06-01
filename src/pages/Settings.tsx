@@ -40,7 +40,6 @@ const Settings = () => {
     { id: 'market-lines', name: 'Market Lines' },
     { id: 'library', name: 'Library' },
     { id: 'my-library', name: 'SH Sellers.json' },
-    { id: 'play', name: 'Play' },
     { id: 'explore', name: 'Explore' }
   ];
 
