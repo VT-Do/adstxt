@@ -12,7 +12,7 @@ import Contact from "./pages/Contact";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import SellersJson from "./pages/SellersJson";
-import Play from "./pages/Play";
+import Explore from "./pages/Explore";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NavBar from "./components/NavBar";
@@ -40,10 +40,10 @@ const AppRoutes = () => {
             </ProtectedRoute>
           } />
           
-          {/* Protected route for Play tab - only for non-viewer roles */}
-          <Route path="/play" element={
+          {/* Protected route for Explore tab - only for non-viewer roles */}
+          <Route path="/explore" element={
             <ProtectedRoute requireNonViewer={true}>
-              <Play />
+              <Explore />
             </ProtectedRoute>
           } />
           

@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2, ChevronUp, ChevronDown } from "lucide-react";
 import { useColumnVisibility } from "@/hooks/useColumnVisibility";
 import { 
   formatEuroValue, 
@@ -25,6 +25,11 @@ interface PaginatedDataTableProps {
   tab: string;
 }
 
+interface SortConfig {
+  column: string;
+  direction: 'asc' | 'desc';
+}
+
 const PaginatedDataTable: React.FC<PaginatedDataTableProps> = ({
   isLoading,
   data,
@@ -34,19 +39,68 @@ const PaginatedDataTable: React.FC<PaginatedDataTableProps> = ({
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(100);
+  const [sortConfig, setSortConfig] = useState<SortConfig | null>(null);
   const { isColumnVisible } = useColumnVisibility(tab);
-
-  // Calculate pagination data
-  const totalItems = filteredData.length;
-  const totalPages = Math.ceil(totalItems / pageSize);
-  const startIndex = (currentPage - 1) * pageSize;
-  const endIndex = Math.min(startIndex + pageSize, totalItems);
-  const currentData = filteredData.slice(startIndex, endIndex);
 
   // Filter visible columns based on role permissions
   const displayColumns = useMemo(() => {
     return visibleColumns.filter(column => isColumnVisible(column));
   }, [visibleColumns, isColumnVisible]);
+
+  // Sort the filtered data
+  const sortedData = useMemo(() => {
+    if (!sortConfig) return filteredData;
+
+    return [...filteredData].sort((a, b) => {
+      const aValue = a[sortConfig.column];
+      const bValue = b[sortConfig.column];
+
+      // Handle null/undefined values
+      if (aValue == null && bValue == null) return 0;
+      if (aValue == null) return 1;
+      if (bValue == null) return -1;
+
+      // Check if values are numeric
+      const aNum = Number(aValue);
+      const bNum = Number(bValue);
+      
+      if (!isNaN(aNum) && !isNaN(bNum)) {
+        // Numeric comparison
+        const result = aNum - bNum;
+        return sortConfig.direction === 'asc' ? result : -result;
+      } else {
+        // String comparison
+        const result = String(aValue).localeCompare(String(bValue));
+        return sortConfig.direction === 'asc' ? result : -result;
+      }
+    });
+  }, [filteredData, sortConfig]);
+
+  // Calculate pagination data
+  const totalItems = sortedData.length;
+  const totalPages = Math.ceil(totalItems / pageSize);
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = Math.min(startIndex + pageSize, totalItems);
+  const currentData = sortedData.slice(startIndex, endIndex);
+
+  // Handle column sorting
+  const handleSort = (column: string) => {
+    setSortConfig(prevConfig => {
+      if (prevConfig?.column === column) {
+        // Same column, toggle direction
+        return {
+          column,
+          direction: prevConfig.direction === 'asc' ? 'desc' : 'asc'
+        };
+      } else {
+        // New column, start with ascending
+        return {
+          column,
+          direction: 'asc'
+        };
+      }
+    });
+  };
 
   // Generate page numbers for pagination
   const getPageNumbers = () => {
@@ -160,7 +214,7 @@ const PaginatedDataTable: React.FC<PaginatedDataTableProps> = ({
     );
   }
 
-  if (filteredData.length === 0) {
+  if (sortedData.length === 0) {
     return (
       <div className="text-center py-12">
         <p className="text-gray-500">No data matches your current filters.</p>
@@ -182,8 +236,30 @@ const PaginatedDataTable: React.FC<PaginatedDataTableProps> = ({
             <TableHeader>
               <TableRow>
                 {displayColumns.map((column) => (
-                  <TableHead key={column} className="whitespace-nowrap">
-                    {column}
+                  <TableHead 
+                    key={column} 
+                    className="whitespace-nowrap cursor-pointer hover:bg-muted/50"
+                    onClick={() => handleSort(column)}
+                  >
+                    <div className="flex items-center gap-1">
+                      <span>{column}</span>
+                      <div className="flex flex-col">
+                        <ChevronUp 
+                          className={`h-3 w-3 ${
+                            sortConfig?.column === column && sortConfig.direction === 'asc'
+                              ? 'text-primary' 
+                              : 'text-muted-foreground'
+                          }`}
+                        />
+                        <ChevronDown 
+                          className={`h-3 w-3 -mt-1 ${
+                            sortConfig?.column === column && sortConfig.direction === 'desc'
+                              ? 'text-primary' 
+                              : 'text-muted-foreground'
+                          }`}
+                        />
+                      </div>
+                    </div>
                   </TableHead>
                 ))}
               </TableRow>
