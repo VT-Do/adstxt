@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -65,17 +64,24 @@ const Settings = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      // Get all profiles from the profiles table
+      const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) {
-        throw error;
+      if (profilesError) {
+        console.error('Error fetching profiles:', profilesError);
+        toast({
+          title: "Error",
+          description: "Failed to fetch user profiles",
+          variant: "destructive",
+        });
+        return;
       }
 
-      console.log('Fetched users:', data);
-      setUsers(data as Profile[]);
+      console.log('Fetched profiles:', profilesData);
+      setUsers(profilesData as Profile[]);
     } catch (error: any) {
       console.error('Error fetching users:', error);
       toast({
