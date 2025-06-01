@@ -4,12 +4,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { Profile } from "@/types";
 import { useToast } from "@/hooks/use-toast";
-import { Settings as SettingsIcon, Save, User, Check, X, Eye, EyeOff, Edit3 } from "lucide-react";
+import { Settings as SettingsIcon, Save, User, Check, X, Eye, EyeOff } from "lucide-react";
 
 interface ColumnVisibilitySettings {
   id?: string;
@@ -24,23 +23,15 @@ interface TabVisibilitySettings {
   hidden_tabs: string[];
 }
 
-interface ColumnNameSettings {
-  [tab: string]: {
-    [originalColumn: string]: string;
-  };
-}
-
 const Settings = () => {
   const [users, setUsers] = useState<Profile[]>([]);
   const [marketLinesColumns, setMarketLinesColumns] = useState<string[]>([]);
   const [libraryColumns, setLibraryColumns] = useState<string[]>([]);
-  const [exploreColumns, setExploreColumns] = useState<string[]>([]);
   const [viewerSettings, setViewerSettings] = useState<ColumnVisibilitySettings[]>([]);
   const [viewerTabSettings, setViewerTabSettings] = useState<TabVisibilitySettings>({
     role: 'viewer',
     hidden_tabs: []
   });
-  const [columnNames, setColumnNames] = useState<ColumnNameSettings>({});
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
@@ -49,7 +40,7 @@ const Settings = () => {
     { id: 'market-lines', name: 'Market Lines' },
     { id: 'library', name: 'Library' },
     { id: 'my-library', name: 'SH Sellers.json' },
-    { id: 'explore', name: 'Explore' }
+    { id: 'play', name: 'Play' }
   ];
 
   // Sample columns for Market Lines (these would normally come from actual data)
@@ -62,38 +53,9 @@ const Settings = () => {
     "Line", "Type", "Primary_Line", "Priority_Weight", "Account", 
     "demand_partner", "demand_market_division", "ID", "SELLER DOMAIN", "SELLER NAME","SELLER TYPE"];
 
-  // Sample columns for Explore (these would normally come from actual data)
-  const sampleExploreColumns = [
-    "Rank", "Line", "Key", "BU", "Score", "Priority_Weight", "Revenue", "OMP_rev", "PMP_rev", "RES_rev",
-    "Revenue_all", "BidOpp", "OMP_bidopp", "PMP_bidopp", "RES_bidopp", "BidOpp_all", "RPMO", "Primary_Line",
-    "SELLER DOMAIN", "SELLER NAME", "SELLER TYPE"];
-
   useEffect(() => {
     setMarketLinesColumns(sampleMarketLinesColumns);
     setLibraryColumns(sampleLibraryColumns);
-    setExploreColumns(sampleExploreColumns);
-    
-    // Initialize column names with default values
-    const initialColumnNames: ColumnNameSettings = {
-      'market-lines': {},
-      'library': {},
-      'explore': {}
-    };
-    
-    sampleMarketLinesColumns.forEach(col => {
-      initialColumnNames['market-lines'][col] = col;
-    });
-    
-    sampleLibraryColumns.forEach(col => {
-      initialColumnNames['library'][col] = col;
-    });
-
-    sampleExploreColumns.forEach(col => {
-      initialColumnNames['explore'][col] = col;
-    });
-    
-    setColumnNames(initialColumnNames);
-    
     fetchUsers();
     fetchSettings();
     fetchTabSettings();
@@ -261,16 +223,6 @@ const Settings = () => {
     });
   };
 
-  const updateColumnName = (tab: string, originalColumn: string, newName: string) => {
-    setColumnNames(prev => ({
-      ...prev,
-      [tab]: {
-        ...prev[tab],
-        [originalColumn]: newName
-      }
-    }));
-  };
-
   const saveSettings = async () => {
     try {
       setLoading(true);
@@ -333,33 +285,17 @@ const Settings = () => {
     const hiddenColumns = getHiddenColumns(tab);
     
     return (
-      <div className="grid grid-cols-1 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {columns.map((column) => (
-          <div key={column} className="flex items-center space-x-4 p-3 border rounded-lg">
-            <div className="flex items-center space-x-2">
-              <Switch
-                id={`${tab}-${column}`}
-                checked={hiddenColumns.includes(column)}
-                onCheckedChange={(checked) => updateColumnVisibility(tab, column, checked)}
-              />
-              <Label htmlFor={`${tab}-${column}`} className="text-sm font-medium">
-                Hide
-              </Label>
-            </div>
-            <div className="flex-1">
-              <Label className="text-sm text-muted-foreground mb-1 block">
-                Original: "{column}"
-              </Label>
-              <div className="flex items-center space-x-2">
-                <Edit3 className="h-4 w-4 text-muted-foreground" />
-                <Input
-                  value={columnNames[tab]?.[column] || column}
-                  onChange={(e) => updateColumnName(tab, column, e.target.value)}
-                  placeholder="Custom display name"
-                  className="flex-1"
-                />
-              </div>
-            </div>
+          <div key={column} className="flex items-center space-x-2">
+            <Switch
+              id={`${tab}-${column}`}
+              checked={hiddenColumns.includes(column)}
+              onCheckedChange={(checked) => updateColumnVisibility(tab, column, checked)}
+            />
+            <Label htmlFor={`${tab}-${column}`} className="text-sm">
+              Hide "{column}"
+            </Label>
           </div>
         ))}
       </div>
@@ -499,7 +435,6 @@ const Settings = () => {
               <TabsList>
                 <TabsTrigger value="market-lines">Market Lines</TabsTrigger>
                 <TabsTrigger value="library">Library</TabsTrigger>
-                <TabsTrigger value="explore">Explore</TabsTrigger>
               </TabsList>
               
               <TabsContent value="market-lines" className="space-y-4">
@@ -510,11 +445,6 @@ const Settings = () => {
               <TabsContent value="library" className="space-y-4">
                 <h3 className="text-lg font-medium">Library Tab Columns</h3>
                 {renderColumnToggles(libraryColumns, 'library')}
-              </TabsContent>
-
-              <TabsContent value="explore" className="space-y-4">
-                <h3 className="text-lg font-medium">Explore Tab Columns</h3>
-                {renderColumnToggles(exploreColumns, 'explore')}
               </TabsContent>
             </Tabs>
             
