@@ -20,7 +20,7 @@ export const useTabVisibility = () => {
 
       try {
         const { data, error } = await supabase
-          .from('tab_visibility_settings' as any)
+          .from('tab_visibility_settings')
           .select('hidden_tabs')
           .eq('role', profile.role)
           .single();

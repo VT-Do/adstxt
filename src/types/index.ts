@@ -4,6 +4,7 @@ export type UserRole = 'admin' | 'viewer';
 export interface Profile {
   id: string;
   email: string;
+  name?: string;
   full_name?: string;
   role: UserRole;
   created_at: string;

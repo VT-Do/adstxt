@@ -86,7 +86,7 @@ const Settings = () => {
     try {
       setLoading(true);
       const { data, error } = await supabase
-        .from('column_visibility_settings' as any)
+        .from('column_visibility_settings')
         .select('*')
         .eq('role', 'viewer');
 
@@ -95,7 +95,7 @@ const Settings = () => {
         return;
       }
 
-      setViewerSettings((data as any) || []);
+      setViewerSettings(data || []);
     } catch (error: any) {
       console.error("Error fetching settings:", error);
     } finally {
@@ -106,7 +106,7 @@ const Settings = () => {
   const fetchTabSettings = async () => {
     try {
       const { data, error } = await supabase
-        .from('tab_visibility_settings' as any)
+        .from('tab_visibility_settings')
         .select('*')
         .eq('role', 'viewer')
         .single();
@@ -117,7 +117,11 @@ const Settings = () => {
       }
 
       if (data) {
-        setViewerTabSettings(data as TabVisibilitySettings);
+        setViewerTabSettings({
+          id: data.id,
+          role: data.role,
+          hidden_tabs: data.hidden_tabs || []
+        });
       }
     } catch (error: any) {
       console.error("Error fetching tab settings:", error);
@@ -216,7 +220,7 @@ const Settings = () => {
       
       // Save column visibility settings
       await supabase
-        .from('column_visibility_settings' as any)
+        .from('column_visibility_settings')
         .delete()
         .eq('role', 'viewer');
 
@@ -228,7 +232,7 @@ const Settings = () => {
 
       if (columnSettingsToInsert.length > 0) {
         const { error: columnError } = await supabase
-          .from('column_visibility_settings' as any)
+          .from('column_visibility_settings')
           .insert(columnSettingsToInsert);
 
         if (columnError) {
@@ -238,12 +242,12 @@ const Settings = () => {
 
       // Save tab visibility settings
       await supabase
-        .from('tab_visibility_settings' as any)
+        .from('tab_visibility_settings')
         .delete()
         .eq('role', 'viewer');
 
       const { error: tabError } = await supabase
-        .from('tab_visibility_settings' as any)
+        .from('tab_visibility_settings')
         .insert({
           role: viewerTabSettings.role,
           hidden_tabs: viewerTabSettings.hidden_tabs
@@ -329,7 +333,7 @@ const Settings = () => {
                     users.map((user) => (
                       <TableRow key={user.id}>
                         <TableCell>{user.email}</TableCell>
-                        <TableCell>{user.name || "—"}</TableCell>
+                        <TableCell>{user.name || user.full_name || "—"}</TableCell>
                         <TableCell>
                           <span className={`px-2 py-1 text-xs rounded-full ${
                             user.role === 'admin' 
