@@ -40,7 +40,8 @@ const Settings = () => {
     { id: 'market-lines', name: 'Market Lines' },
     { id: 'library', name: 'Library' },
     { id: 'my-library', name: 'SH Sellers.json' },
-    { id: 'play', name: 'Play' }
+    { id: 'play', name: 'Play' },
+    { id: 'explore', name: 'Explore' }
   ];
 
   // Sample columns for Market Lines (these would normally come from actual data)
