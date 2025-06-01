@@ -25,7 +25,7 @@ const NavBar = () => {
           {/* Primary Navigation Links */}
           <nav className="flex items-center space-x-1">
             {isTabVisible('market-lines') && (
-              <Link to="/">
+              <Link to="/login">
                 <Button 
                   variant={isActive("/") ? "default" : "ghost"} 
                   className="gap-2"
