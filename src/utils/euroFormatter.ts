@@ -69,6 +69,21 @@ export const formatRpmoValue = (value: any): string => {
 };
 
 /**
+ * Formats rank values as integers (1, 2, 3, etc.)
+ */
+export const formatRankValue = (value: any): string => {
+  // Convert to number, handle null/undefined/empty values
+  const numValue = Number(value);
+  
+  if (isNaN(numValue) || value === null || value === undefined || value === '') {
+    return String(value || '');
+  }
+  
+  // Return as integer without decimal places
+  return Math.round(numValue).toString();
+};
+
+/**
  * Checks if a column name contains 'rev' (case insensitive) indicating it's a revenue column
  */
 export const isRevenueColumn = (columnName: string): boolean => {
@@ -83,11 +98,18 @@ export const isRpmoColumn = (columnName: string): boolean => {
 };
 
 /**
- * Checks if a column contains numeric values (excluding revenue and RPMO columns)
+ * Checks if a column name contains 'rank' (case insensitive) indicating it's a rank column
+ */
+export const isRankColumn = (columnName: string): boolean => {
+  return columnName.toLowerCase().includes('rank');
+};
+
+/**
+ * Checks if a column contains numeric values (excluding revenue, RPMO, and rank columns)
  */
 export const isNumericColumn = (columnName: string, value: any): boolean => {
-  // Don't format if it's already a revenue or RPMO column
-  if (isRevenueColumn(columnName) || isRpmoColumn(columnName)) {
+  // Don't format if it's already a revenue, RPMO, or rank column
+  if (isRevenueColumn(columnName) || isRpmoColumn(columnName) || isRankColumn(columnName)) {
     return false;
   }
   

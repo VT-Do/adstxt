@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/components/ui/table";
 import { Loader2, ArrowUp, ArrowDown, Download } from "lucide-react";
@@ -18,7 +19,16 @@ import {
   getColumnType,
   downloadAsCSV 
 } from "@/utils/columnNameMapping";
-import { formatEuroValue, isRevenueColumn, formatRpmoValue, isRpmoColumn, formatNumericValue, isNumericColumn } from "@/utils/euroFormatter";
+import { 
+  formatEuroValue, 
+  isRevenueColumn, 
+  formatRpmoValue, 
+  isRpmoColumn, 
+  formatNumericValue, 
+  isNumericColumn,
+  formatRankValue,
+  isRankColumn
+} from "@/utils/euroFormatter";
 import { useColumnVisibility } from "@/hooks/useColumnVisibility";
 
 interface PaginatedDataTableProps {
@@ -137,6 +147,47 @@ const PaginatedDataTable: React.FC<PaginatedDataTableProps> = ({
   const handleDownload = () => {
     downloadAsCSV(filteredData, 'table-data.csv', visibleColumns);
   };
+
+  const renderPagination = () => {
+    if (totalPages <= 1) return null;
+    
+    return (
+      <Pagination className="my-4">
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious 
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              className={currentPage <= 1 ? "pointer-events-none opacity-50" : ""}
+            />
+          </PaginationItem>
+          
+          {getPageNumbers().map((pageNum, index) => (
+            pageNum < 0 ? (
+              <PaginationItem key={`ellipsis-${index}`}>
+                <PaginationEllipsis />
+              </PaginationItem>
+            ) : (
+              <PaginationItem key={pageNum}>
+                <PaginationLink
+                  isActive={currentPage === pageNum}
+                  onClick={() => setCurrentPage(pageNum)}
+                >
+                  {pageNum}
+                </PaginationLink>
+              </PaginationItem>
+            )
+          ))}
+          
+          <PaginationItem>
+            <PaginationNext
+              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+              className={currentPage >= totalPages ? "pointer-events-none opacity-50" : ""}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
+    );
+  };
   
   if (isLoading || visibilityLoading) {
     return (
@@ -185,6 +236,9 @@ const PaginatedDataTable: React.FC<PaginatedDataTableProps> = ({
           {totalPages > 1 && ` • Page ${currentPage} of ${totalPages}`}
         </div>
       </div>
+
+      {/* Top pagination */}
+      {renderPagination()}
       
       <div className="overflow-x-auto">
         <Table>
@@ -222,9 +276,11 @@ const PaginatedDataTable: React.FC<PaginatedDataTableProps> = ({
                         formatEuroValue(row[header]) : 
                         isRpmoColumn(header) ?
                           formatRpmoValue(row[header]) :
-                          isNumericColumn(header, row[header]) ?
-                            formatNumericValue(row[header]) :
-                            String(row[header])
+                          isRankColumn(header) ?
+                            formatRankValue(row[header]) :
+                            isNumericColumn(header, row[header]) ?
+                              formatNumericValue(row[header]) :
+                              String(row[header])
                     ) : ""}
                   </TableCell>
                 ))}
@@ -234,42 +290,8 @@ const PaginatedDataTable: React.FC<PaginatedDataTableProps> = ({
         </Table>
       </div>
 
-      {totalPages > 1 && (
-        <Pagination className="my-4">
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious 
-                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                className={currentPage <= 1 ? "pointer-events-none opacity-50" : ""}
-              />
-            </PaginationItem>
-            
-            {getPageNumbers().map((pageNum, index) => (
-              pageNum < 0 ? (
-                <PaginationItem key={`ellipsis-${index}`}>
-                  <PaginationEllipsis />
-                </PaginationItem>
-              ) : (
-                <PaginationItem key={pageNum}>
-                  <PaginationLink
-                    isActive={currentPage === pageNum}
-                    onClick={() => setCurrentPage(pageNum)}
-                  >
-                    {pageNum}
-                  </PaginationLink>
-                </PaginationItem>
-              )
-            ))}
-            
-            <PaginationItem>
-              <PaginationNext
-                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                className={currentPage >= totalPages ? "pointer-events-none opacity-50" : ""}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      )}
+      {/* Bottom pagination */}
+      {renderPagination()}
     </>
   );
 };

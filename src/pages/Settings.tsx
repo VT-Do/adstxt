@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -9,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { Profile } from "@/types";
 import { useToast } from "@/hooks/use-toast";
-import { Settings as SettingsIcon, Save, User, Check, X } from "lucide-react";
+import { Settings as SettingsIcon, Save, User, Check, X, Eye, EyeOff } from "lucide-react";
 
 interface ColumnVisibilitySettings {
   id?: string;
@@ -18,13 +17,30 @@ interface ColumnVisibilitySettings {
   hidden_columns: string[];
 }
 
+interface TabVisibilitySettings {
+  id?: string;
+  role: string;
+  hidden_tabs: string[];
+}
+
 const Settings = () => {
   const [users, setUsers] = useState<Profile[]>([]);
   const [marketLinesColumns, setMarketLinesColumns] = useState<string[]>([]);
   const [libraryColumns, setLibraryColumns] = useState<string[]>([]);
   const [viewerSettings, setViewerSettings] = useState<ColumnVisibilitySettings[]>([]);
+  const [viewerTabSettings, setViewerTabSettings] = useState<TabVisibilitySettings>({
+    role: 'viewer',
+    hidden_tabs: []
+  });
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+
+  // Available tabs that can be controlled
+  const availableTabs = [
+    { id: 'market-lines', name: 'Market Lines' },
+    { id: 'library', name: 'Library' },
+    { id: 'my-library', name: 'SH Sellers.json' }
+  ];
 
   // Sample columns for Market Lines (these would normally come from actual data)
   const sampleMarketLinesColumns = [
@@ -41,6 +57,7 @@ const Settings = () => {
     setLibraryColumns(sampleLibraryColumns);
     fetchUsers();
     fetchSettings();
+    fetchTabSettings();
   }, []);
 
   const fetchUsers = async () => {
@@ -82,6 +99,27 @@ const Settings = () => {
       console.error("Error fetching settings:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchTabSettings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('tab_visibility_settings' as any)
+        .select('*')
+        .eq('role', 'viewer')
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error("Error fetching tab settings:", error);
+        return;
+      }
+
+      if (data) {
+        setViewerTabSettings(data);
+      }
+    } catch (error: any) {
+      console.error("Error fetching tab settings:", error);
     }
   };
 
@@ -151,36 +189,72 @@ const Settings = () => {
     }
   };
 
+  const updateTabVisibility = (tabId: string, isHidden: boolean) => {
+    const updatedHiddenTabs = [...viewerTabSettings.hidden_tabs];
+    
+    if (isHidden) {
+      if (!updatedHiddenTabs.includes(tabId)) {
+        updatedHiddenTabs.push(tabId);
+      }
+    } else {
+      const index = updatedHiddenTabs.indexOf(tabId);
+      if (index > -1) {
+        updatedHiddenTabs.splice(index, 1);
+      }
+    }
+    
+    setViewerTabSettings({
+      ...viewerTabSettings,
+      hidden_tabs: updatedHiddenTabs
+    });
+  };
+
   const saveSettings = async () => {
     try {
       setLoading(true);
       
-      // Delete existing settings for viewer role
+      // Save column visibility settings
       await supabase
         .from('column_visibility_settings' as any)
         .delete()
         .eq('role', 'viewer');
 
-      // Insert new settings
-      const settingsToInsert = viewerSettings.map(setting => ({
+      const columnSettingsToInsert = viewerSettings.map(setting => ({
         role: setting.role,
         tab: setting.tab,
         hidden_columns: setting.hidden_columns
       }));
 
-      if (settingsToInsert.length > 0) {
-        const { error } = await supabase
+      if (columnSettingsToInsert.length > 0) {
+        const { error: columnError } = await supabase
           .from('column_visibility_settings' as any)
-          .insert(settingsToInsert);
+          .insert(columnSettingsToInsert);
 
-        if (error) {
-          throw error;
+        if (columnError) {
+          throw columnError;
         }
+      }
+
+      // Save tab visibility settings
+      await supabase
+        .from('tab_visibility_settings' as any)
+        .delete()
+        .eq('role', 'viewer');
+
+      const { error: tabError } = await supabase
+        .from('tab_visibility_settings' as any)
+        .insert({
+          role: viewerTabSettings.role,
+          hidden_tabs: viewerTabSettings.hidden_tabs
+        });
+
+      if (tabError) {
+        throw tabError;
       }
 
       toast({
         title: "Settings saved",
-        description: "Column visibility settings have been updated successfully.",
+        description: "Column and tab visibility settings have been updated successfully.",
       });
     } catch (error: any) {
       toast({
@@ -294,6 +368,38 @@ const Settings = () => {
               </Table>
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      {/* Tab Visibility Settings */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Eye className="h-5 w-5" />
+            Tab Visibility Settings for Viewer Role
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-6">
+            <p className="text-sm text-muted-foreground">
+              Configure which tabs should be hidden for users with the "viewer" role.
+            </p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {availableTabs.map((tab) => (
+                <div key={tab.id} className="flex items-center space-x-2">
+                  <Switch
+                    id={`tab-${tab.id}`}
+                    checked={viewerTabSettings.hidden_tabs.includes(tab.id)}
+                    onCheckedChange={(checked) => updateTabVisibility(tab.id, checked)}
+                  />
+                  <Label htmlFor={`tab-${tab.id}`} className="text-sm">
+                    Hide "{tab.name}"
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </div>
         </CardContent>
       </Card>
 
