@@ -1,84 +1,125 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Library from "./pages/Library";
-import Contact from "./pages/Contact";
-import Settings from "./pages/Settings";
-import NotFound from "./pages/NotFound";
-import SellersJson from "./pages/SellersJson";
-import Explore from "./pages/Explore";
-import { AuthProvider, useAuth } from "./contexts/AuthContext";
-import ProtectedRoute from "./components/ProtectedRoute";
-import NavBar from "./components/NavBar";
+import { Link, useLocation } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
+import { useTabVisibility } from "@/hooks/useTabVisibility";
+import { FileText, Library, Book, Mail, LogOut, Settings, Search } from "lucide-react";
 
-const queryClient = new QueryClient();
-
-const AppRoutes = () => {
-  const { user } = useAuth();
+const NavBar = () => {
+  const location = useLocation();
+  const { user, profile, signOut, isAdmin } = useAuth();
+  const { isTabVisible } = useTabVisibility();
   
+  const isActive = (path: string) => {
+    return location.pathname === path;
+  };
+
   return (
-    <>
-      {/* Only show NavBar when user is authenticated */}
-      {user && <NavBar />}
-      <main>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/library" element={<Library />} />
-          <Route path="/contact" element={<Contact />} />
+    <header className="border-b sticky top-0 z-40 bg-white">
+      <div className="container mx-auto flex h-16 items-center justify-between px-4">
+        <div className="flex items-center gap-6">
+          <Link to="/login" className="text-2xl font-bold bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">
+            ADS.TXT DATA
+          </Link>
           
-          {/* Protected route for SH Sellers.json - only for non-viewer roles */}
-          <Route path="/my-library" element={
-            <ProtectedRoute requireNonViewer={true}>
-              <SellersJson />
-            </ProtectedRoute>
-          } />
+          {/* Primary Navigation Links */}
+          <nav className="flex items-center space-x-1">
+            {isTabVisible('market-lines') && (
+              <Link to="/login">
+                <Button 
+                  variant={isActive("/") ? "default" : "ghost"} 
+                  className="gap-2"
+                >
+                  <FileText className="h-4 w-4" />
+                  Market Lines
+                </Button>
+              </Link>
+            )}
+            {isTabVisible('library') && (
+              <Link to="/library">
+                <Button 
+                  variant={isActive("/library") ? "default" : "ghost"}
+                  className="gap-2"
+                >
+                  <Library className="h-4 w-4" />
+                  Library
+                </Button>
+              </Link>
+            )}
+            {isTabVisible('my-library') && (
+              <Link to="/my-library">
+                <Button 
+                  variant={isActive("/my-library") ? "default" : "ghost"}
+                  className="gap-2"
+                >
+                  <Book className="h-4 w-4" />
+                  SH Sellers.json
+                </Button>
+              </Link>
+            )}
+            {isTabVisible('explore') && (
+              <Link to="/explore">
+                <Button 
+                  variant={isActive("/explore") ? "default" : "ghost"}
+                  className="gap-2"
+                >
+                  <Search className="h-4 w-4" />
+                  Explore
+                </Button>
+              </Link>
+            )}
+            <Link to="/contact">
+              <Button 
+                variant={isActive("/contact") ? "default" : "ghost"} 
+                className="gap-2"
+              >
+                <Mail className="h-4 w-4" />
+                Contact
+              </Button>
+            </Link>
+          </nav>
           
-          {/* Protected route for Explore tab - only for non-viewer roles */}
-          <Route path="/explore" element={
-            <ProtectedRoute requireNonViewer={true}>
-              <Explore />
-            </ProtectedRoute>
-          } />
-          
-          {/* Redirect root to Market Lines for authenticated users */}
-          <Route path="/" element={
-            <ProtectedRoute>
-              <Index />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/settings" element={
-            <ProtectedRoute requireAdmin={true}>
-              <Settings />
-            </ProtectedRoute>
-          } />
-          
-          {/* Add additional routes above the catch-all */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </main>
-    </>
+          {/* Settings Navigation (only visible when logged in and is admin) */}
+          {user && isAdmin && (
+            <nav className="hidden md:flex items-center space-x-1">
+              <Link to="/settings">
+                <Button 
+                  variant={isActive("/settings") ? "default" : "ghost"}
+                  className="gap-2"
+                >
+                  <Settings className="h-4 w-4" />
+                  Settings
+                </Button>
+              </Link>
+            </nav>
+          )}
+        </div>
+        <div className="flex items-center gap-4">
+          {user ? (
+            <div className="flex items-center gap-4">
+              <div className="text-sm">
+                <span className="font-medium">{profile?.email}</span>
+                {profile?.role && (
+                  <span className="ml-2 text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+                    {profile.role}
+                  </span>
+                )}
+              </div>
+              <Button onClick={signOut} variant="ghost" size="sm" className="gap-2">
+                <LogOut className="h-4 w-4" />
+                Log out
+              </Button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Button asChild variant="ghost" size="sm">
+                <Link to="/login">Log in</Link>
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
+    </header>
   );
 };
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <AppRoutes />
-        </AuthProvider>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
-
-export default App;
+export default NavBar;
