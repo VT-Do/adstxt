@@ -2,9 +2,9 @@
 import React, { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SearchToolbar from "@/components/SearchToolbar";
 import PaginatedDataTable from "@/components/PaginatedDataTable";
+import SheetTabsList from "@/components/SheetTabsList";
 
 interface PlayData {
   [key: string]: any;
@@ -159,87 +159,51 @@ const Play = () => {
         </div>
 
         <div className="space-y-6">
+          {/* Use SheetTabsList for consistent styling */}
+          {availableTabs.length > 0 && (
+            <SheetTabsList 
+              tabs={availableTabs}
+              selectedTab={activeTab}
+              onSelectTab={handleTabChange}
+            />
+          )}
+
           {/* Card for displaying data */}
           <div className="bg-white rounded-lg shadow-md">
-            {/* Tabs */}
-            {availableTabs.length > 0 && (
-              <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                  {availableTabs.map((tab) => (
-                    <TabsTrigger key={tab} value={tab}>
-                      {tab}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-                
-                {availableTabs.map((tab) => (
-                  <TabsContent key={tab} value={tab}>
-                    {/* Search and Refresh Toolbar */}
-                    <SearchToolbar 
-                      searchTerm={searchTerm}
-                      onSearchChange={setSearchTerm}
-                      onRefresh={handleRefresh}
-                      isLoading={isLoading}
-                      data={currentTabData}
-                      columns={currentTabData.length > 0 ? Object.keys(currentTabData[0]) : []}
-                      visibleColumns={visibleColumns}
-                      onColumnVisibilityChange={setVisibleColumns}
-                      filteredData={filteredData}
-                      onApplyFilters={handleApplyFilters}
-                      sheetUrl={openUrl}
-                    />
+            {/* Search and Refresh Toolbar */}
+            <SearchToolbar 
+              searchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+              onRefresh={handleRefresh}
+              isLoading={isLoading}
+              data={currentTabData}
+              columns={currentTabData.length > 0 ? Object.keys(currentTabData[0]) : []}
+              visibleColumns={visibleColumns}
+              onColumnVisibilityChange={setVisibleColumns}
+              filteredData={filteredData}
+              onApplyFilters={handleApplyFilters}
+              sheetUrl={openUrl}
+            />
 
-                    {/* Data Table with Pagination and Sorting */}
-                    {currentTabData.length > 0 ? (
-                      <PaginatedDataTable 
-                        isLoading={isLoading}
-                        data={currentTabData}
-                        filteredData={filteredData}
-                        visibleColumns={visibleColumns}
-                        tab="play"
-                      />
-                    ) : (
-                      <div className="text-center py-12">
-                        <p className="text-gray-500">
-                          {isLoading ? (
-                            <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary mb-4" />
-                          ) : (
-                            "No data available. Click refresh to try loading data again."
-                          )}
-                        </p>
-                      </div>
-                    )}
-                  </TabsContent>
-                ))}
-              </Tabs>
-            )}
-            
-            {/* Show loading or no data message when no tabs available */}
-            {availableTabs.length === 0 && (
-              <>
-                <SearchToolbar 
-                  searchTerm={searchTerm}
-                  onSearchChange={setSearchTerm}
-                  onRefresh={handleRefresh}
-                  isLoading={isLoading}
-                  data={[]}
-                  columns={[]}
-                  visibleColumns={[]}
-                  onColumnVisibilityChange={setVisibleColumns}
-                  filteredData={[]}
-                  onApplyFilters={handleApplyFilters}
-                  sheetUrl={openUrl}
-                />
-                <div className="text-center py-12">
-                  <p className="text-gray-500">
-                    {isLoading ? (
-                      <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary mb-4" />
-                    ) : (
-                      "No data available. Click refresh to try loading data again."
-                    )}
-                  </p>
+            {/* Data Table with Pagination and Sorting */}
+            {currentTabData.length > 0 ? (
+              <PaginatedDataTable 
+                isLoading={isLoading}
+                data={currentTabData}
+                filteredData={filteredData}
+                visibleColumns={visibleColumns}
+                tab="play"
+              />
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-gray-500">
+                  {isLoading ? (
+                    <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary mb-4" />
+                  ) : (
+                    "No data available. Click refresh to try loading data again."
+                  )}
+                </p>
                 </div>
-              </>
             )}
           </div>
         </div>
