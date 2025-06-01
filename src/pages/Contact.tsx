@@ -266,7 +266,7 @@ const Contact = () => {
           </CardContent>
         </Card>
       </div>
-      /*
+      */
     </div>
   );
 };
