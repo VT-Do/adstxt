@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTabVisibility } from "@/hooks/useTabVisibility";
-import { FileText, Library, Book, Mail, LogOut, Settings } from "lucide-react";
+import { FileText, Library, Book, Mail, LogOut, Settings, Play } from "lucide-react";
 
 const NavBar = () => {
   const location = useLocation();
@@ -25,9 +25,9 @@ const NavBar = () => {
           {/* Primary Navigation Links */}
           <nav className="flex items-center space-x-1">
             {isTabVisible('market-lines') && (
-              <Link to="/login">
+              <Link to="/">
                 <Button 
-                  variant={isActive("/login") ? "default" : "ghost"} 
+                  variant={isActive("/") ? "default" : "ghost"} 
                   className="gap-2"
                 >
                   <FileText className="h-4 w-4" />
@@ -54,6 +54,17 @@ const NavBar = () => {
                 >
                   <Book className="h-4 w-4" />
                   SH Sellers.json
+                </Button>
+              </Link>
+            )}
+            {isTabVisible('play') && (
+              <Link to="/play">
+                <Button 
+                  variant={isActive("/play") ? "default" : "ghost"}
+                  className="gap-2"
+                >
+                  <Play className="h-4 w-4" />
+                  Play
                 </Button>
               </Link>
             )}

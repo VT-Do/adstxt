@@ -94,43 +94,42 @@ const PaginatedDataTable: React.FC<PaginatedDataTableProps> = ({
 
   const PaginationControls = () => (
     <div className="flex items-center justify-between gap-4">
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <span>
-          Showing {startIndex + 1}-{endIndex} of {totalItems} records • Page {currentPage} of {totalPages}
-        </span>
-        <div className="flex items-center gap-1">
+      <div className="text-sm text-muted-foreground">
+        Showing {startIndex + 1}-{endIndex} of {totalItems} records • Page {currentPage} of {totalPages}
+      </div>
+      
+      <div className="flex items-center justify-center gap-1 flex-1">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+          disabled={currentPage === 1}
+        >
+          <ChevronLeft className="h-4 w-4" />
+          Previous
+        </Button>
+        
+        {getPageNumbers().map((pageNum) => (
           <Button
-            variant="outline"
+            key={pageNum}
+            variant={currentPage === pageNum ? "default" : "outline"}
             size="sm"
-            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-            disabled={currentPage === 1}
+            onClick={() => setCurrentPage(pageNum)}
+            className="min-w-8"
           >
-            <ChevronLeft className="h-4 w-4" />
-            Previous
+            {pageNum}
           </Button>
-          
-          {getPageNumbers().map((pageNum) => (
-            <Button
-              key={pageNum}
-              variant={currentPage === pageNum ? "default" : "outline"}
-              size="sm"
-              onClick={() => setCurrentPage(pageNum)}
-              className="min-w-8"
-            >
-              {pageNum}
-            </Button>
-          ))}
-          
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-            disabled={currentPage === totalPages}
-          >
-            Next
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
+        ))}
+        
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+          disabled={currentPage === totalPages}
+        >
+          Next
+          <ChevronRight className="h-4 w-4" />
+        </Button>
       </div>
       
       <div className="flex items-center gap-2">

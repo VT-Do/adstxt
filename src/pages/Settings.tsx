@@ -40,7 +40,8 @@ const Settings = () => {
   const availableTabs = [
     { id: 'market-lines', name: 'Market Lines' },
     { id: 'library', name: 'Library' },
-    { id: 'my-library', name: 'SH Sellers.json' }
+    { id: 'my-library', name: 'SH Sellers.json' },
+    { id: 'play', name: 'Play' }
   ];
 
   // Sample columns for Market Lines (these would normally come from actual data)
@@ -63,6 +64,7 @@ const Settings = () => {
 
   const fetchUsers = async () => {
     try {
+      setLoading(true);
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -72,19 +74,22 @@ const Settings = () => {
         throw error;
       }
 
+      console.log('Fetched users:', data);
       setUsers(data as Profile[]);
     } catch (error: any) {
+      console.error('Error fetching users:', error);
       toast({
         title: "Error",
         description: error.message,
         variant: "destructive",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
   const fetchSettings = async () => {
     try {
-      setLoading(true);
       const { data, error } = await supabase
         .from('column_visibility_settings')
         .select('*')
@@ -98,8 +103,6 @@ const Settings = () => {
       setViewerSettings(data || []);
     } catch (error: any) {
       console.error("Error fetching settings:", error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -390,7 +393,7 @@ const Settings = () => {
               Configure which tabs should be hidden for users with the "viewer" role.
             </p>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               {availableTabs.map((tab) => (
                 <div key={tab.id} className="flex items-center space-x-2">
                   <Switch

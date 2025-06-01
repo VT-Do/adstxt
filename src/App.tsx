@@ -12,6 +12,7 @@ import Contact from "./pages/Contact";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import SellersJson from "./pages/SellersJson";
+import Play from "./pages/Play";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NavBar from "./components/NavBar";
@@ -39,10 +40,17 @@ const AppRoutes = () => {
             </ProtectedRoute>
           } />
           
-          {/* Redirect root to login (Market Lines) for authenticated users */}
+          {/* Protected route for Play tab - only for non-viewer roles */}
+          <Route path="/play" element={
+            <ProtectedRoute requireNonViewer={true}>
+              <Play />
+            </ProtectedRoute>
+          } />
+          
+          {/* Redirect root to Market Lines for authenticated users */}
           <Route path="/" element={
             <ProtectedRoute>
-              <Login />
+              <Index />
             </ProtectedRoute>
           } />
           
