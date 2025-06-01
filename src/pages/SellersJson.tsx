@@ -4,6 +4,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
 import SearchToolbar from "@/components/SearchToolbar";
 import PaginatedDataTable from "@/components/PaginatedDataTable";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Seller {
   seller_id: string;
@@ -29,9 +30,6 @@ const SellersJson = () => {
   const [visibleColumns, setVisibleColumns] = useState<string[]>([]);
   const { toast } = useToast();
   
-  // URL for fetching the sellers.json data
-  const sellersJsonUrl = "https://platform.showheroes.com/app/sellers.json";
-  
   // URL for the Open Sheet button - linking directly to the sellers.json source
   const openJsonUrl = "https://platform.showheroes.com/app/sellers.json";
 
@@ -51,16 +49,17 @@ const SellersJson = () => {
     try {
       setIsLoading(true);
       
-      const response = await fetch(sellersJsonUrl);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch data: ${response.status} ${response.statusText}`);
-      }
+      // Use the Supabase Edge Function to fetch the data
+      const { data, error } = await supabase.functions.invoke('fetch-sellers-json');
       
-      const data: SellersJsonData = await response.json();
+      if (error) {
+        throw new Error(`Edge Function error: ${error.message}`);
+      }
       
       // Extract sellers array from the response
       if (data && data.sellers && Array.isArray(data.sellers)) {
         setSellersData(data.sellers);
+        console.log(`Loaded ${data.sellers.length} sellers from sellers.json`);
       } else {
         setSellersData([]);
         toast({
