@@ -26,7 +26,7 @@ const NavBar = () => {
             {isTabVisible('market-lines') && (
               <Link to="/login">
                 <Button 
-                  variant={isActive("/") ? "default" : "ghost"} 
+                  variant={isActive("/login") ? "default" : "ghost"} 
                   className="gap-2"
                 >
                   <FileText className="h-4 w-4" />
