@@ -1,7 +1,8 @@
 
 import React, { useState, useEffect } from "react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SearchToolbar from "@/components/SearchToolbar";
 import PaginatedDataTable from "@/components/PaginatedDataTable";
 
@@ -9,9 +10,18 @@ interface PlayData {
   [key: string]: any;
 }
 
+interface PlayDataResponse {
+  status: string;
+  message: string;
+  data: {
+    [region: string]: PlayData[];
+  };
+}
+
 const Play = () => {
-  const [playData, setPlayData] = useState<PlayData[]>([]);
+  const [playData, setPlayData] = useState<{[region: string]: PlayData[]}>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>("GLOBAL");
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilters, setActiveFilters] = useState<Array<{column: string, operator: string, value: string}>>([]);
   const [visibleColumns, setVisibleColumns] = useState<string[]>([]);
@@ -27,10 +37,11 @@ const Play = () => {
 
   // Initialize visible columns when data changes
   useEffect(() => {
-    if (playData.length > 0 && visibleColumns.length === 0) {
-      setVisibleColumns(Object.keys(playData[0]));
+    const currentTabData = playData[activeTab];
+    if (currentTabData && currentTabData.length > 0 && visibleColumns.length === 0) {
+      setVisibleColumns(Object.keys(currentTabData[0]));
     }
-  }, [playData]);
+  }, [playData, activeTab]);
 
   const fetchPlayData = async () => {
     try {
@@ -42,16 +53,22 @@ const Play = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
-      const data = await response.json();
+      const data: PlayDataResponse = await response.json();
       
       // Extract data from the response
-      if (data && data.status === 'success' && data.data && Array.isArray(data.data)) {
-        // Flatten the data if it's nested
-        const flattenedData = data.data.flat();
-        setPlayData(flattenedData);
-        console.log(`Loaded ${flattenedData.length} records from Play API`);
+      if (data && data.status === 'success' && data.data && typeof data.data === 'object') {
+        setPlayData(data.data);
+        
+        // Set the first available tab as active
+        const availableTabs = Object.keys(data.data);
+        if (availableTabs.length > 0) {
+          setActiveTab(availableTabs[0]);
+        }
+        
+        const totalRecords = Object.values(data.data).reduce((sum, arr) => sum + arr.length, 0);
+        console.log(`Loaded ${totalRecords} records from Play API across ${availableTabs.length} regions`);
       } else {
-        setPlayData([]);
+        setPlayData({});
         toast({
           title: "Error",
           description: "The data format received was not as expected",
@@ -97,15 +114,18 @@ const Play = () => {
     });
   };
 
+  // Get current tab data
+  const currentTabData = playData[activeTab] || [];
+  
   // Filter data based on search term and active filters
   const filteredData = applyFilters(
     searchTerm 
-      ? playData.filter(row => 
+      ? currentTabData.filter(row => 
           Object.values(row).some(
             value => String(value).toLowerCase().includes(searchTerm.toLowerCase())
           )
         )
-      : playData
+      : currentTabData
   );
 
   const handleRefresh = () => {
@@ -115,6 +135,20 @@ const Play = () => {
   const handleApplyFilters = (filters: Array<{column: string, operator: string, value: string}>) => {
     setActiveFilters(filters);
   };
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    setSearchTerm("");
+    setActiveFilters([]);
+    
+    // Update visible columns for the new tab
+    const newTabData = playData[value];
+    if (newTabData && newTabData.length > 0) {
+      setVisibleColumns(Object.keys(newTabData[0]));
+    }
+  };
+
+  const availableTabs = Object.keys(playData);
 
   return (
     <div className="flex flex-col min-h-screen bg-[#0f1429]">
@@ -127,40 +161,85 @@ const Play = () => {
         <div className="space-y-6">
           {/* Card for displaying data */}
           <div className="bg-white rounded-lg shadow-md">
-            {/* Search and Refresh Toolbar */}
-            <SearchToolbar 
-              searchTerm={searchTerm}
-              onSearchChange={setSearchTerm}
-              onRefresh={handleRefresh}
-              isLoading={isLoading}
-              data={playData}
-              columns={playData.length > 0 ? Object.keys(playData[0]) : []}
-              visibleColumns={visibleColumns}
-              onColumnVisibilityChange={setVisibleColumns}
-              filteredData={filteredData}
-              onApplyFilters={handleApplyFilters}
-              sheetUrl={openUrl}
-            />
+            {/* Tabs */}
+            {availableTabs.length > 0 && (
+              <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  {availableTabs.map((tab) => (
+                    <TabsTrigger key={tab} value={tab}>
+                      {tab}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+                
+                {availableTabs.map((tab) => (
+                  <TabsContent key={tab} value={tab}>
+                    {/* Search and Refresh Toolbar */}
+                    <SearchToolbar 
+                      searchTerm={searchTerm}
+                      onSearchChange={setSearchTerm}
+                      onRefresh={handleRefresh}
+                      isLoading={isLoading}
+                      data={currentTabData}
+                      columns={currentTabData.length > 0 ? Object.keys(currentTabData[0]) : []}
+                      visibleColumns={visibleColumns}
+                      onColumnVisibilityChange={setVisibleColumns}
+                      filteredData={filteredData}
+                      onApplyFilters={handleApplyFilters}
+                      sheetUrl={openUrl}
+                    />
 
-            {/* Data Table with Pagination and Sorting */}
-            {playData.length > 0 ? (
-              <PaginatedDataTable 
-                isLoading={isLoading}
-                data={playData}
-                filteredData={filteredData}
-                visibleColumns={visibleColumns}
-                tab="play"
-              />
-            ) : (
-              <div className="text-center py-12">
-                <p className="text-gray-500">
-                  {isLoading ? (
-                    <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary mb-4" />
-                  ) : (
-                    "No data available. Click refresh to try loading data again."
-                  )}
-                </p>
-              </div>
+                    {/* Data Table with Pagination and Sorting */}
+                    {currentTabData.length > 0 ? (
+                      <PaginatedDataTable 
+                        isLoading={isLoading}
+                        data={currentTabData}
+                        filteredData={filteredData}
+                        visibleColumns={visibleColumns}
+                        tab="play"
+                      />
+                    ) : (
+                      <div className="text-center py-12">
+                        <p className="text-gray-500">
+                          {isLoading ? (
+                            <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary mb-4" />
+                          ) : (
+                            "No data available. Click refresh to try loading data again."
+                          )}
+                        </p>
+                      </div>
+                    )}
+                  </TabsContent>
+                ))}
+              </Tabs>
+            )}
+            
+            {/* Show loading or no data message when no tabs available */}
+            {availableTabs.length === 0 && (
+              <>
+                <SearchToolbar 
+                  searchTerm={searchTerm}
+                  onSearchChange={setSearchTerm}
+                  onRefresh={handleRefresh}
+                  isLoading={isLoading}
+                  data={[]}
+                  columns={[]}
+                  visibleColumns={[]}
+                  onColumnVisibilityChange={setVisibleColumns}
+                  filteredData={[]}
+                  onApplyFilters={handleApplyFilters}
+                  sheetUrl={openUrl}
+                />
+                <div className="text-center py-12">
+                  <p className="text-gray-500">
+                    {isLoading ? (
+                      <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary mb-4" />
+                    ) : (
+                      "No data available. Click refresh to try loading data again."
+                    )}
+                  </p>
+                </div>
+              </>
             )}
           </div>
         </div>
