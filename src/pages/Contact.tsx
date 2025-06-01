@@ -148,7 +148,7 @@ const Contact = () => {
         ))}
       </div>
 
-      /*
+      {/*
       <div className="max-w-2xl mx-auto">
         <Card>
           <CardHeader>
@@ -266,7 +266,7 @@ const Contact = () => {
           </CardContent>
         </Card>
       </div>
-      */
+      */}
     </div>
   );
 };
