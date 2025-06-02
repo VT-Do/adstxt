@@ -27,7 +27,7 @@ const Explore = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilters, setActiveFilters] = useState<Array<{column: string, operator: string, value: string}>>([]);
   const [visibleColumns, setVisibleColumns] = useState<string[]>([]);
-  const [numberOfWeeks, setNumberOfWeeks] = useState<string>("8");
+  const [numberOfWeeks, setNumberOfWeeks] = useState<string>("4");
   const [customWeeks, setCustomWeeks] = useState<string>("");
   const { toast } = useToast();
   
