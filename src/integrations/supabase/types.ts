@@ -38,55 +38,46 @@ export type Database = {
       }
       profiles: {
         Row: {
-          created_at: string
-          email: string
-          full_name: string | null
+          created_at: string | null
+          email: string | null
           id: string
-          role: Database["public"]["Enums"]["user_role"]
-          updated_at: string
+          name: string | null
+          role: string | null
+          updated_at: string | null
         }
         Insert: {
-          created_at?: string
-          email: string
-          full_name?: string | null
+          created_at?: string | null
+          email?: string | null
           id: string
-          role?: Database["public"]["Enums"]["user_role"]
-          updated_at?: string
+          name?: string | null
+          role?: string | null
+          updated_at?: string | null
         }
         Update: {
-          created_at?: string
-          email?: string
-          full_name?: string | null
+          created_at?: string | null
+          email?: string | null
           id?: string
-          role?: Database["public"]["Enums"]["user_role"]
-          updated_at?: string
+          name?: string | null
+          role?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
       sheet_data: {
         Row: {
-          created_at: string
-          created_by: string | null
+          created_at: string | null
+          data: Json
           id: string
-          row_data: Json
-          sheet_id: string
-          updated_by: string | null
         }
         Insert: {
-          created_at?: string
-          created_by?: string | null
+          created_at?: string | null
+          data: Json
           id?: string
-          row_data: Json
-          sheet_id: string
-          updated_by?: string | null
         }
         Update: {
-          created_at?: string
-          created_by?: string | null
+          created_at?: string | null
+          data?: Json
           id?: string
-          row_data?: Json
-          sheet_id?: string
-          updated_by?: string | null
         }
         Relationships: []
       }
@@ -114,15 +105,171 @@ export type Database = {
         }
         Relationships: []
       }
+      test2: {
+        Row: {
+          "Bid opportunity": number | null
+          Key: string | null
+          LINE: string | null
+          PRIMARY: string | null
+          Revenue: number | null
+          RPMO: number | null
+          Seller: string | null
+          "Supply market": string | null
+        }
+        Insert: {
+          "Bid opportunity"?: number | null
+          Key?: string | null
+          LINE?: string | null
+          PRIMARY?: string | null
+          Revenue?: number | null
+          RPMO?: number | null
+          Seller?: string | null
+          "Supply market"?: string | null
+        }
+        Update: {
+          "Bid opportunity"?: number | null
+          Key?: string | null
+          LINE?: string | null
+          PRIMARY?: string | null
+          Revenue?: number | null
+          RPMO?: number | null
+          Seller?: string | null
+          "Supply market"?: string | null
+        }
+        Relationships: []
+      }
+      test3: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          id: number
+          is_active: boolean | null
+          name: string
+          value: number | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          id?: number
+          is_active?: boolean | null
+          name: string
+          value?: number | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          id?: number
+          is_active?: boolean | null
+          name?: string
+          value?: number | null
+        }
+        Relationships: []
+      }
+      test4: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          id: number
+          is_active: boolean | null
+          name: string | null
+          value: number | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          id: number
+          is_active?: boolean | null
+          name?: string | null
+          value?: number | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          id?: number
+          is_active?: boolean | null
+          name?: string | null
+          value?: number | null
+        }
+        Relationships: []
+      }
+      Upload: {
+        Row: {
+          Account: string | null
+          Division: string | null
+          ID: number | null
+          Line: string | null
+          Primary_: boolean | null
+          "SELLER DOMAIN": string | null
+          "SELLER NAME": string | null
+          "SELLER TYPE": string | null
+          SSP: string | null
+          Type: string | null
+          Weight: string | null
+        }
+        Insert: {
+          Account?: string | null
+          Division?: string | null
+          ID?: number | null
+          Line?: string | null
+          Primary_?: boolean | null
+          "SELLER DOMAIN"?: string | null
+          "SELLER NAME"?: string | null
+          "SELLER TYPE"?: string | null
+          SSP?: string | null
+          Type?: string | null
+          Weight?: string | null
+        }
+        Update: {
+          Account?: string | null
+          Division?: string | null
+          ID?: number | null
+          Line?: string | null
+          Primary_?: boolean | null
+          "SELLER DOMAIN"?: string | null
+          "SELLER NAME"?: string | null
+          "SELLER TYPE"?: string | null
+          SSP?: string | null
+          Type?: string | null
+          Weight?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _user_id: string
+          _role: Database["public"]["Enums"]["app_role"]
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      user_role: "admin" | "viewer"
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -238,7 +385,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      user_role: ["admin", "viewer"],
+      app_role: ["admin", "user"],
     },
   },
 } as const
