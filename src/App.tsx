@@ -14,6 +14,7 @@ import NotFound from "./pages/NotFound";
 import SellersJson from "./pages/SellersJson";
 import Explore from "./pages/Explore";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { useTabVisibility } from "./hooks/useTabVisibility";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NavBar from "./components/NavBar";
 
@@ -21,6 +22,7 @@ const queryClient = new QueryClient();
 
 const AppRoutes = () => {
   const { user } = useAuth();
+  const { isTabVisible } = useTabVisibility();
   
   return (
     <>
@@ -40,10 +42,10 @@ const AppRoutes = () => {
             </ProtectedRoute>
           } />
           
-          {/* Protected route for Explore tab - only for non-viewer roles */}
+          {/* Protected route for Explore tab - check if tab is visible for the user's role */}
           <Route path="/explore" element={
-            <ProtectedRoute requireNonViewer={true}>
-              <Explore />
+            <ProtectedRoute>
+              {isTabVisible('explore') ? <Explore /> : <Index />}
             </ProtectedRoute>
           } />
           
