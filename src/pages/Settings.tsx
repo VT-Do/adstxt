@@ -106,6 +106,7 @@ const Settings = () => {
             email: user.email || '',
             role: 'viewer' as const,
             created_at: user.created_at,
+            updated_at: user.updated_at || user.created_at, // Add missing updated_at field
             name: user.user_metadata?.name || null,
             full_name: user.user_metadata?.full_name || null
           }));
