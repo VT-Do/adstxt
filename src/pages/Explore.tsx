@@ -46,7 +46,7 @@ const Explore = () => {
     try {
       setIsLoading(true);
       
-      const response = await fetch('https://europe-west3-showheroes-bi.cloudfunctions.net/test-2');
+      const response = await fetch('https://europe-west3-showheroes-bi.cloudfunctions.net/test-2-2');
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
