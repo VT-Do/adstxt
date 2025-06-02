@@ -9,249 +9,57 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      column_visibility_settings: {
+      profiles: {
         Row: {
           created_at: string
-          hidden_columns: string[]
+          email: string
+          full_name: string | null
           id: string
-          role: string
-          tab: string
+          role: Database["public"]["Enums"]["user_role"]
           updated_at: string
         }
         Insert: {
           created_at?: string
-          hidden_columns?: string[]
-          id?: string
-          role: string
-          tab: string
+          email: string
+          full_name?: string | null
+          id: string
+          role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
         }
         Update: {
           created_at?: string
-          hidden_columns?: string[]
+          email?: string
+          full_name?: string | null
           id?: string
-          role?: string
-          tab?: string
+          role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
-        }
-        Relationships: []
-      }
-      profiles: {
-        Row: {
-          created_at: string | null
-          email: string | null
-          id: string
-          name: string | null
-          role: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          email?: string | null
-          id: string
-          name?: string | null
-          role?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          email?: string | null
-          id?: string
-          name?: string | null
-          role?: string | null
-          updated_at?: string | null
         }
         Relationships: []
       }
       sheet_data: {
         Row: {
-          created_at: string | null
-          data: Json
-          id: string
-        }
-        Insert: {
-          created_at?: string | null
-          data: Json
-          id?: string
-        }
-        Update: {
-          created_at?: string | null
-          data?: Json
-          id?: string
-        }
-        Relationships: []
-      }
-      tab_visibility_settings: {
-        Row: {
           created_at: string
-          hidden_tabs: string[]
+          created_by: string | null
           id: string
-          role: string
-          updated_at: string
+          row_data: Json
+          sheet_id: string
+          updated_by: string | null
         }
         Insert: {
           created_at?: string
-          hidden_tabs?: string[]
+          created_by?: string | null
           id?: string
-          role: string
-          updated_at?: string
+          row_data: Json
+          sheet_id: string
+          updated_by?: string | null
         }
         Update: {
           created_at?: string
-          hidden_tabs?: string[]
+          created_by?: string | null
           id?: string
-          role?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      test2: {
-        Row: {
-          "Bid opportunity": number | null
-          Key: string | null
-          LINE: string | null
-          PRIMARY: string | null
-          Revenue: number | null
-          RPMO: number | null
-          Seller: string | null
-          "Supply market": string | null
-        }
-        Insert: {
-          "Bid opportunity"?: number | null
-          Key?: string | null
-          LINE?: string | null
-          PRIMARY?: string | null
-          Revenue?: number | null
-          RPMO?: number | null
-          Seller?: string | null
-          "Supply market"?: string | null
-        }
-        Update: {
-          "Bid opportunity"?: number | null
-          Key?: string | null
-          LINE?: string | null
-          PRIMARY?: string | null
-          Revenue?: number | null
-          RPMO?: number | null
-          Seller?: string | null
-          "Supply market"?: string | null
-        }
-        Relationships: []
-      }
-      test3: {
-        Row: {
-          category: string | null
-          created_at: string | null
-          id: number
-          is_active: boolean | null
-          name: string
-          value: number | null
-        }
-        Insert: {
-          category?: string | null
-          created_at?: string | null
-          id?: number
-          is_active?: boolean | null
-          name: string
-          value?: number | null
-        }
-        Update: {
-          category?: string | null
-          created_at?: string | null
-          id?: number
-          is_active?: boolean | null
-          name?: string
-          value?: number | null
-        }
-        Relationships: []
-      }
-      test4: {
-        Row: {
-          category: string | null
-          created_at: string | null
-          id: number
-          is_active: boolean | null
-          name: string | null
-          value: number | null
-        }
-        Insert: {
-          category?: string | null
-          created_at?: string | null
-          id: number
-          is_active?: boolean | null
-          name?: string | null
-          value?: number | null
-        }
-        Update: {
-          category?: string | null
-          created_at?: string | null
-          id?: number
-          is_active?: boolean | null
-          name?: string | null
-          value?: number | null
-        }
-        Relationships: []
-      }
-      Upload: {
-        Row: {
-          Account: string | null
-          Division: string | null
-          ID: number | null
-          Line: string | null
-          Primary_: boolean | null
-          "SELLER DOMAIN": string | null
-          "SELLER NAME": string | null
-          "SELLER TYPE": string | null
-          SSP: string | null
-          Type: string | null
-          Weight: string | null
-        }
-        Insert: {
-          Account?: string | null
-          Division?: string | null
-          ID?: number | null
-          Line?: string | null
-          Primary_?: boolean | null
-          "SELLER DOMAIN"?: string | null
-          "SELLER NAME"?: string | null
-          "SELLER TYPE"?: string | null
-          SSP?: string | null
-          Type?: string | null
-          Weight?: string | null
-        }
-        Update: {
-          Account?: string | null
-          Division?: string | null
-          ID?: number | null
-          Line?: string | null
-          Primary_?: boolean | null
-          "SELLER DOMAIN"?: string | null
-          "SELLER NAME"?: string | null
-          "SELLER TYPE"?: string | null
-          SSP?: string | null
-          Type?: string | null
-          Weight?: string | null
-        }
-        Relationships: []
-      }
-      user_roles: {
-        Row: {
-          created_at: string | null
-          id: string
-          role: Database["public"]["Enums"]["app_role"]
-          user_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          role: Database["public"]["Enums"]["app_role"]
-          user_id: string
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          role?: Database["public"]["Enums"]["app_role"]
-          user_id?: string
+          row_data?: Json
+          sheet_id?: string
+          updated_by?: string | null
         }
         Relationships: []
       }
@@ -260,16 +68,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      has_role: {
-        Args: {
-          _user_id: string
-          _role: Database["public"]["Enums"]["app_role"]
-        }
-        Returns: boolean
-      }
+      [_ in never]: never
     }
     Enums: {
-      app_role: "admin" | "user"
+      user_role: "admin" | "viewer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -385,7 +187,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user"],
+      user_role: ["admin", "viewer"],
     },
   },
 } as const
