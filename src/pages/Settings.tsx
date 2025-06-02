@@ -64,7 +64,8 @@ const Settings = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      // Get all profiles from the profiles table
+      console.log('Fetching users from profiles table...');
+      
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
         .select('*')
@@ -81,12 +82,41 @@ const Settings = () => {
       }
 
       console.log('Fetched profiles:', profilesData);
-      setUsers(profilesData as Profile[]);
+      
+      if (profilesData && profilesData.length > 0) {
+        setUsers(profilesData as Profile[]);
+      } else {
+        console.log('No profiles found, checking auth.users table...');
+        
+        // If no profiles found, try to get users from auth.users (admin only operation)
+        const { data: { users: authUsers }, error: authError } = await supabase.auth.admin.listUsers();
+        
+        if (authError) {
+          console.error('Error fetching auth users:', authError);
+          toast({
+            title: "Warning",
+            description: "Could not fetch complete user list. Some users may not be visible.",
+            variant: "destructive",
+          });
+        } else if (authUsers) {
+          console.log('Found auth users:', authUsers);
+          // Convert auth users to profile format
+          const convertedUsers = authUsers.map(user => ({
+            id: user.id,
+            email: user.email || '',
+            role: 'viewer' as const,
+            created_at: user.created_at,
+            name: user.user_metadata?.name || null,
+            full_name: user.user_metadata?.full_name || null
+          }));
+          setUsers(convertedUsers);
+        }
+      }
     } catch (error: any) {
       console.error('Error fetching users:', error);
       toast({
         title: "Error",
-        description: error.message,
+        description: error.message || "Failed to fetch users",
         variant: "destructive",
       });
     } finally {
@@ -353,7 +383,7 @@ const Settings = () => {
                           </span>
                         </TableCell>
                         <TableCell>
-                          {new Date(user.created_at).toLocaleDateString()}
+                          {user.created_at ? new Date(user.created_at).toLocaleDateString() : "—"}
                         </TableCell>
                         <TableCell>
                           <Button
