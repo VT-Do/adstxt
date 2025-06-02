@@ -33,7 +33,7 @@ const Index = () => {
             <ul className="space-y-4 text-gray-300">
               <li className="flex items-start">
                 <span className="w-2 h-2 bg-green-500 rounded-full mt-2.5 mr-4 flex-shrink-0"></span>
-                <span className="leading-relaxed">Customize ads.txt line management for multiple markets.</span>
+                <span className="leading-relaxed">Customize ads.txt lines for multiple markets.</span>
               </li>
               <li className="flex items-start">
                 <span className="w-2 h-2 bg-green-500 rounded-full mt-2.5 mr-4 flex-shrink-0"></span>
@@ -45,7 +45,7 @@ const Index = () => {
               </li>
               <li className="flex items-start">
                 <span className="w-2 h-2 bg-green-500 rounded-full mt-2.5 mr-4 flex-shrink-0"></span>
-                <span className="leading-relaxed">Optimize revenue performance monitoring</span>
+                <span className="leading-relaxed">Help decision makings with dynamic data insights</span>
               </li>
             </ul>
           </div>
