@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -139,7 +138,9 @@ const Settings = () => {
         return;
       }
 
-      setViewerSettings(data || []);
+      // Properly type the data
+      const typedData = (data || []) as ColumnVisibilitySettings[];
+      setViewerSettings(typedData);
     } catch (error: any) {
       console.error("Error fetching settings:", error);
     }
@@ -152,7 +153,7 @@ const Settings = () => {
         .from('tab_visibility_settings' as any)
         .select('*')
         .eq('role', 'viewer')
-        .single();
+        .maybeSingle();
 
       if (error && error.code !== 'PGRST116') {
         console.error("Error fetching tab settings:", error);
@@ -160,10 +161,12 @@ const Settings = () => {
       }
 
       if (data) {
+        // Properly type the data
+        const typedData = data as TabVisibilitySettings;
         setViewerTabSettings({
-          id: data.id,
-          role: data.role,
-          hidden_tabs: data.hidden_tabs || []
+          id: typedData.id,
+          role: typedData.role,
+          hidden_tabs: typedData.hidden_tabs || []
         });
       }
     } catch (error: any) {
