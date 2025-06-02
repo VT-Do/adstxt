@@ -89,7 +89,7 @@ const Index = () => {
             <ol className="space-y-4 text-gray-300">
               <li className="flex items-start">
                 <span className="w-8 h-8 bg-green-500/20 text-green-400 rounded-full text-sm font-semibold flex items-center justify-center mt-0.5 mr-4 flex-shrink-0">1</span>
-                <span className="leading-relaxed">Navigate to different tabs using the top navigation</span>
+                <span className="leading-relaxed">Select the number of weeks to see data in the Explore tab</span>
               </li>
               <li className="flex items-start">
                 <span className="w-8 h-8 bg-green-500/20 text-green-400 rounded-full text-sm font-semibold flex items-center justify-center mt-0.5 mr-4 flex-shrink-0">2</span>
