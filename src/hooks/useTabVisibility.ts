@@ -27,6 +27,8 @@ export const useTabVisibility = () => {
 
         if (error && error.code !== 'PGRST116') { // PGRST116 is "not found"
           console.error("Error fetching tab visibility:", error);
+          setHiddenTabs([]); // Default to no hidden tabs on error
+          setLoading(false);
           return;
         }
 
@@ -36,6 +38,7 @@ export const useTabVisibility = () => {
         setHiddenTabs(tabsToHide);
       } catch (error) {
         console.error("Error fetching tab visibility:", error);
+        setHiddenTabs([]); // Default to no hidden tabs on error
       } finally {
         setLoading(false);
       }
@@ -45,6 +48,9 @@ export const useTabVisibility = () => {
   }, [profile?.role]);
 
   const isTabVisible = (tabId: string) => {
+    // If we're still loading, assume tab is visible
+    if (loading) return true;
+    
     const visible = !hiddenTabs.includes(tabId);
     console.log(`Tab ${tabId} is ${visible ? 'visible' : 'hidden'} for role ${profile?.role}`);
     return visible;

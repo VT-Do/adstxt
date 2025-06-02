@@ -243,22 +243,13 @@ const PaginatedDataTable: React.FC<PaginatedDataTableProps> = ({
                   >
                     <div className="flex items-center gap-1">
                       <span>{column}</span>
-                      <div className="flex flex-col">
-                        <ChevronUp 
-                          className={`h-3 w-3 ${
-                            sortConfig?.column === column && sortConfig.direction === 'asc'
-                              ? 'text-primary' 
-                              : 'text-muted-foreground'
-                          }`}
-                        />
-                        <ChevronDown 
-                          className={`h-3 w-3 -mt-1 ${
-                            sortConfig?.column === column && sortConfig.direction === 'desc'
-                              ? 'text-primary' 
-                              : 'text-muted-foreground'
-                          }`}
-                        />
-                      </div>
+                      {sortConfig?.column === column && (
+                        sortConfig.direction === 'asc' ? (
+                          <ChevronUp className="h-4 w-4 text-primary" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4 text-primary" />
+                        )
+                      )}
                     </div>
                   </TableHead>
                 ))}
