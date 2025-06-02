@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Search, Download, RefreshCcw, X, Filter, ExternalLink } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -31,6 +30,7 @@ interface SearchToolbarProps {
   filteredData?: any[];
   onApplyFilters?: (filters: Array<{column: string, operator: string, value: string}>) => void;
   sheetUrl?: string; // Added sheetUrl prop to specify which URL to open
+  tab?: string; // Add tab prop to identify which tab we're on
 }
 
 const SearchToolbar: React.FC<SearchToolbarProps> = ({
@@ -44,7 +44,8 @@ const SearchToolbar: React.FC<SearchToolbarProps> = ({
   onColumnVisibilityChange,
   filteredData,
   onApplyFilters,
-  sheetUrl
+  sheetUrl,
+  tab
 }) => {
   const [filterPopoverOpen, setFilterPopoverOpen] = useState(false);
   const [columnToggleOpen, setColumnToggleOpen] = useState(false);
@@ -204,14 +205,17 @@ const SearchToolbar: React.FC<SearchToolbarProps> = ({
           Download
         </Button>
 
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={openInGoogleSheets}
-        >
-          <ExternalLink className="h-4 w-4 mr-2" />
-          Open Sheet
-        </Button>
+        {/* Only show Open Sheet button if it's NOT the Explore tab */}
+        {tab !== 'explore' && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={openInGoogleSheets}
+          >
+            <ExternalLink className="h-4 w-4 mr-2" />
+            Open Sheet
+          </Button>
+        )}
 
         {onRefresh && (
           <Button

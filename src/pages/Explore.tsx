@@ -1,7 +1,9 @@
-
 import React, { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import SearchToolbar from "@/components/SearchToolbar";
 import PaginatedDataTable from "@/components/PaginatedDataTable";
 import SheetTabsList from "@/components/SheetTabsList";
@@ -25,17 +27,14 @@ const Explore = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilters, setActiveFilters] = useState<Array<{column: string, operator: string, value: string}>>([]);
   const [visibleColumns, setVisibleColumns] = useState<string[]>([]);
+  const [numberOfWeeks, setNumberOfWeeks] = useState<string>("8");
+  const [customWeeks, setCustomWeeks] = useState<string>("");
   const { toast } = useToast();
   
-  // URL for the Open button - linking to the Google Cloud Function
-  const openUrl = "https://europe-west3-showheroes-bi.cloudfunctions.net/test-2";
-
   useEffect(() => {
-    // Load data when component mounts
     fetchExploreData();
   }, []);
 
-  // Initialize visible columns when data changes
   useEffect(() => {
     const currentTabData = exploreData[activeTab];
     if (currentTabData && currentTabData.length > 0 && visibleColumns.length === 0) {
@@ -55,11 +54,9 @@ const Explore = () => {
       
       const data: ExploreDataResponse = await response.json();
       
-      // Extract data from the response
       if (data && data.status === 'success' && data.data && typeof data.data === 'object') {
         setExploreData(data.data);
         
-        // Set the first available tab as active
         const availableTabs = Object.keys(data.data);
         if (availableTabs.length > 0) {
           setActiveTab(availableTabs[0]);
@@ -87,7 +84,6 @@ const Explore = () => {
     }
   };
 
-  // Apply filters to data
   const applyFilters = (data: any[]) => {
     if (!activeFilters.length) return data;
     
@@ -114,10 +110,8 @@ const Explore = () => {
     });
   };
 
-  // Get current tab data
   const currentTabData = exploreData[activeTab] || [];
   
-  // Filter data based on search term and active filters
   const filteredData = applyFilters(
     searchTerm 
       ? currentTabData.filter(row => 
@@ -141,7 +135,6 @@ const Explore = () => {
     setSearchTerm("");
     setActiveFilters([]);
     
-    // Update visible columns for the new tab
     const newTabData = exploreData[value];
     if (newTabData && newTabData.length > 0) {
       setVisibleColumns(Object.keys(newTabData[0]));
@@ -150,16 +143,49 @@ const Explore = () => {
 
   const availableTabs = Object.keys(exploreData);
 
+  const getWeeksValue = () => {
+    if (numberOfWeeks === "custom") {
+      return customWeeks || "8";
+    }
+    return numberOfWeeks;
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-[#0f1429]">
-      {/* Main Content */}
       <div className="container mx-auto px-4 py-6 flex-grow">
-        <div className="mb-8">
+        <div className="mb-8 flex items-center justify-between">
           <h1 className="text-4xl font-bold text-white mb-2">Explore</h1>
+          <div className="flex items-center gap-4">
+            <Label htmlFor="weeks-select" className="text-white text-sm">
+              Number of weeks:
+            </Label>
+            <div className="flex items-center gap-2">
+              <Select value={numberOfWeeks} onValueChange={setNumberOfWeeks}>
+                <SelectTrigger className="w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="8">8 weeks</SelectItem>
+                  <SelectItem value="12">12 weeks</SelectItem>
+                  <SelectItem value="custom">Custom</SelectItem>
+                </SelectContent>
+              </Select>
+              {numberOfWeeks === "custom" && (
+                <Input
+                  type="number"
+                  placeholder="Enter weeks"
+                  value={customWeeks}
+                  onChange={(e) => setCustomWeeks(e.target.value)}
+                  className="w-24"
+                  min="1"
+                  max="52"
+                />
+              )}
+            </div>
+          </div>
         </div>
 
         <div className="space-y-6">
-          {/* Use SheetTabsList for consistent styling */}
           {availableTabs.length > 0 && (
             <SheetTabsList 
               tabs={availableTabs}
@@ -168,9 +194,7 @@ const Explore = () => {
             />
           )}
 
-          {/* Card for displaying data */}
           <div className="bg-white rounded-lg shadow-md">
-            {/* Search and Refresh Toolbar */}
             <SearchToolbar 
               searchTerm={searchTerm}
               onSearchChange={setSearchTerm}
@@ -182,10 +206,9 @@ const Explore = () => {
               onColumnVisibilityChange={setVisibleColumns}
               filteredData={filteredData}
               onApplyFilters={handleApplyFilters}
-              sheetUrl={openUrl}
+              tab="explore"
             />
 
-            {/* Data Table with Pagination and Sorting */}
             {currentTabData.length > 0 ? (
               <PaginatedDataTable 
                 isLoading={isLoading}

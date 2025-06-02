@@ -1,10 +1,9 @@
-
 import React, { useState, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ChevronLeft, ChevronRight, Loader2, ChevronUp, ChevronDown } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2, ArrowUp, ArrowDown } from "lucide-react";
 import { useColumnVisibility } from "@/hooks/useColumnVisibility";
 import { 
   formatEuroValue, 
@@ -29,6 +28,17 @@ interface SortConfig {
   column: string;
   direction: 'asc' | 'desc';
 }
+
+// Column name mapping for SH Sellers.json tab
+const getSellersJsonColumnName = (column: string) => {
+  const mapping: { [key: string]: string } = {
+    'seller_id': 'Seller ID',
+    'name': 'Name',
+    'domain': 'Domain',
+    'seller_type': 'Seller Type'
+  };
+  return mapping[column] || column;
+};
 
 const PaginatedDataTable: React.FC<PaginatedDataTableProps> = ({
   isLoading,
@@ -146,6 +156,13 @@ const PaginatedDataTable: React.FC<PaginatedDataTableProps> = ({
     return String(value);
   };
 
+  const getColumnDisplayName = (column: string) => {
+    if (tab === 'sellers-json') {
+      return getSellersJsonColumnName(column);
+    }
+    return column;
+  };
+
   const PaginationControls = () => (
     <div className="flex items-center justify-between gap-4">
       <div className="text-sm text-muted-foreground">
@@ -242,12 +259,12 @@ const PaginatedDataTable: React.FC<PaginatedDataTableProps> = ({
                     onClick={() => handleSort(column)}
                   >
                     <div className="flex items-center gap-1">
-                      <span>{column}</span>
+                      <span>{getColumnDisplayName(column)}</span>
                       {sortConfig?.column === column && (
                         sortConfig.direction === 'asc' ? (
-                          <ChevronUp className="h-4 w-4 text-primary" />
+                          <ArrowUp className="h-4 w-4 text-primary" />
                         ) : (
-                          <ChevronDown className="h-4 w-4 text-primary" />
+                          <ArrowDown className="h-4 w-4 text-primary" />
                         )
                       )}
                     </div>
