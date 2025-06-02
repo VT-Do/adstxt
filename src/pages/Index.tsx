@@ -84,7 +84,7 @@ const Index = () => {
               <div className="h-10 w-10 bg-gradient-to-r from-green-500 to-green-400 rounded-full flex items-center justify-center mr-4">
                 <span className="text-black font-bold text-lg">?</span>
               </div>
-              <h2 className="text-2xl font-semibold text-white">How to Use</h2>
+              <h2 className="text-2xl font-semibold text-white">Notes</h2>
             </div>
             <ol className="space-y-4 text-gray-300">
               <li className="flex items-start">
