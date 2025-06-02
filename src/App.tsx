@@ -35,10 +35,10 @@ const AppRoutes = () => {
           <Route path="/library" element={<Library />} />
           <Route path="/contact" element={<Contact />} />
           
-          {/* Protected route for SH Sellers.json - only for non-viewer roles */}
+          {/* Protected route for SH Sellers.json - check if tab is visible for the user's role */}
           <Route path="/my-library" element={
-            <ProtectedRoute requireNonViewer={true}>
-              <SellersJson />
+            <ProtectedRoute>
+              {isTabVisible('my-library') ? <SellersJson /> : <Index />}
             </ProtectedRoute>
           } />
           
