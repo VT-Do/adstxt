@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { Session, User } from "@supabase/supabase-js";
@@ -32,6 +33,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Set up auth state listener
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
           (event, currentSession) => {
+            console.log("Auth state change:", event, currentSession);
             setSession(currentSession);
             setUser(currentSession?.user ?? null);
 
@@ -160,14 +162,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signOut = async () => {
     try {
       setIsLoading(true);
-      await supabase.auth.signOut();
+      console.log("Signing out user...");
+      
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error("Sign out error:", error);
+        toast({
+          title: "Logout failed",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Clear local state
+      setSession(null);
+      setUser(null);
+      setProfile(null);
+      
+      console.log("Successfully signed out");
       toast({
         title: "Logged out",
         description: "You have been successfully logged out.",
       });
+      
       navigate("/login");
     } catch (error) {
       console.error("Sign out error:", error);
+      toast({
+        title: "Logout failed",
+        description: "An error occurred while logging out.",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }

@@ -19,22 +19,13 @@ export const useColumnVisibility = (tab: string) => {
       console.log("Fetching column visibility for role:", profile.role, "tab:", tab);
 
       try {
-        // Using raw query until types are regenerated
+        // Direct query to the table
         const { data, error } = await supabase
-          .rpc('exec_sql', {
-            sql: `SELECT hidden_columns FROM column_visibility_settings WHERE role = $1 AND tab = $2`,
-            params: [profile.role, tab]
-          })
-          .catch(async () => {
-            // Fallback to direct query if RPC doesn't work
-            const response = await supabase
-              .from('column_visibility_settings' as any)
-              .select('hidden_columns')
-              .eq('role', profile.role)
-              .eq('tab', tab)
-              .single();
-            return response;
-          });
+          .from('column_visibility_settings')
+          .select('hidden_columns')
+          .eq('role', profile.role)
+          .eq('tab', tab)
+          .maybeSingle();
 
         if (error && error.code !== 'PGRST116') { // PGRST116 is "not found"
           console.error("Error fetching column visibility:", error);
