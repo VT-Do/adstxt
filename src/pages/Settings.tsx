@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -106,7 +107,7 @@ const Settings = () => {
             email: user.email || '',
             role: 'viewer' as const,
             created_at: user.created_at,
-            updated_at: user.updated_at || user.created_at, // Add missing updated_at field
+            updated_at: user.updated_at || user.created_at,
             name: user.user_metadata?.name || null,
             full_name: user.user_metadata?.full_name || null
           }));
@@ -127,8 +128,9 @@ const Settings = () => {
 
   const fetchSettings = async () => {
     try {
+      // Using type assertion until Supabase types are regenerated
       const { data, error } = await supabase
-        .from('column_visibility_settings')
+        .from('column_visibility_settings' as any)
         .select('*')
         .eq('role', 'viewer');
 
@@ -145,8 +147,9 @@ const Settings = () => {
 
   const fetchTabSettings = async () => {
     try {
+      // Using type assertion until Supabase types are regenerated
       const { data, error } = await supabase
-        .from('tab_visibility_settings')
+        .from('tab_visibility_settings' as any)
         .select('*')
         .eq('role', 'viewer')
         .single();
@@ -260,7 +263,7 @@ const Settings = () => {
       
       // Save column visibility settings
       await supabase
-        .from('column_visibility_settings')
+        .from('column_visibility_settings' as any)
         .delete()
         .eq('role', 'viewer');
 
@@ -272,7 +275,7 @@ const Settings = () => {
 
       if (columnSettingsToInsert.length > 0) {
         const { error: columnError } = await supabase
-          .from('column_visibility_settings')
+          .from('column_visibility_settings' as any)
           .insert(columnSettingsToInsert);
 
         if (columnError) {
@@ -282,12 +285,12 @@ const Settings = () => {
 
       // Save tab visibility settings
       await supabase
-        .from('tab_visibility_settings')
+        .from('tab_visibility_settings' as any)
         .delete()
         .eq('role', 'viewer');
 
       const { error: tabError } = await supabase
-        .from('tab_visibility_settings')
+        .from('tab_visibility_settings' as any)
         .insert({
           role: viewerTabSettings.role,
           hidden_tabs: viewerTabSettings.hidden_tabs

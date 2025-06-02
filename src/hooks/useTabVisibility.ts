@@ -19,11 +19,21 @@ export const useTabVisibility = () => {
       console.log("Fetching tab visibility for role:", profile.role);
 
       try {
+        // Using raw query until types are regenerated
         const { data, error } = await supabase
-          .from('tab_visibility_settings')
-          .select('hidden_tabs')
-          .eq('role', profile.role)
-          .single();
+          .rpc('exec_sql', {
+            sql: `SELECT hidden_tabs FROM tab_visibility_settings WHERE role = $1`,
+            params: [profile.role]
+          })
+          .catch(async () => {
+            // Fallback to direct query if RPC doesn't work
+            const response = await supabase
+              .from('tab_visibility_settings' as any)
+              .select('hidden_tabs')
+              .eq('role', profile.role)
+              .single();
+            return response;
+          });
 
         if (error && error.code !== 'PGRST116') { // PGRST116 is "not found"
           console.error("Error fetching tab visibility:", error);
